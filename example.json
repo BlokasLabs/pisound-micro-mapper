@@ -1,0 +1,19 @@
+{
+	"version" : "1.0",
+	"elements" : {
+		"volume_enc": {
+			"type" : "encoder",
+			"pins" : [ "B03", "up", "B04", "up" ],
+			"input_low" : 0,
+			"input_high" : 24
+		},
+		"balance" : {}
+	},
+	"mappings" : {
+		"alsa" : {
+			"hw:pisound-micro" : [
+				[ "Digital Playback Volume", "volume_enc", { "index": -1 } ]
+			]
+		}
+	}
+}

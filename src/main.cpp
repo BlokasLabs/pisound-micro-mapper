@@ -3,6 +3,7 @@
 #include <cassert>
 #include <cstdio>
 #include <poll.h>
+#include <signal.h>
 
 #include <vector>
 #include <map>
@@ -105,29 +106,20 @@ private:
 	std::multimap<IControl*, IControl*> m_mappings;
 };
 
-#if 0
-int lookup_id(snd_ctl_elem_id_t *id, snd_ctl_t *handle)
+static volatile sig_atomic_t signal_received = 0;
+
+static void signal_handler(int s)
 {
-	int err;
-	snd_ctl_elem_info_t *info;
-	snd_ctl_elem_info_alloca(&info);
-
-	snd_ctl_elem_info_set_id(info, id);
-	if ((err = snd_ctl_elem_info(handle, info)) < 0) {
-		fprintf(stderr, "Cannot find the given element from card\n");
-		return err;
-	}
-	snd_ctl_elem_info_get_id(info, id);
-
-	return 0;
+	signal_received = s;
 }
-#endif
 
-int mainloop(ControlManager &mgr)
+static int mainloop(ControlManager &mgr)
 {
+	sigset_t emptyset;
+	sigemptyset(&emptyset);
 	int err;
 	std::vector<pollfd> pfds;
-	for (;;)
+	while (signal_received == 0)
 	{
 		pfds.resize(mgr.getNumFds());
 		if ((err = mgr.fillFds(pfds.data(), pfds.size())) < 0)
@@ -135,7 +127,13 @@ int mainloop(ControlManager &mgr)
 			return err;
 		}
 
-		err = poll(pfds.data(), pfds.size(), -1);
+		err = ppoll(pfds.data(), pfds.size(), NULL, &emptyset);
+
+		if (signal_received)
+		{
+			printf("Signal received! S %d errno %d (%m)\n", signal_received, errno);
+			break;
+		}
 
 		if (err < 0)
 			return err;
@@ -145,16 +143,30 @@ int mainloop(ControlManager &mgr)
 
 		mgr.handleFdEvents(pfds.data(), pfds.size(), err);
 	}
+
+	return 0;
 }
 
 int main(int argc, char **argv)
 {
+	struct sigaction sa;
+	sigemptyset(&sa.sa_mask);
+	sigaddset(&sa.sa_mask, SIGINT);
+	sigaddset(&sa.sa_mask, SIGTERM);
+	pthread_sigmask(SIG_BLOCK, &sa.sa_mask, NULL);
+
+	sa.sa_handler = signal_handler;
+	sa.sa_flags = 0;
+
+	sigaction(SIGINT, &sa, NULL);
+	sigaction(SIGTERM, &sa, NULL);
+
 	int err;
 	upisnd::LibInitializer initializer;
 
-	if (initializer.getResult() != 0)
+	if (initializer.getResult() < 0)
 	{
-		fprintf(stderr, "Failed to initialize libpisoundmicro! err = %d\n", initializer.getResult());
+		fprintf(stderr, "Failed to initialize libpisoundmicro! Error %d (%m)\n", errno);
 		return 1;
 	}
 
@@ -242,20 +254,15 @@ int main(int argc, char **argv)
 
 	PisoundMicroControlServer pmcs;
 
-	upisnd::Encoder enc = upisnd::Element::exportNamed("encoder").setupEncoder(
-		UPISND_PIN_B03,
-		UPISND_PIN_PULL_UP,
-		UPISND_PIN_B04,
-		UPISND_PIN_PULL_UP
-		);
-
-	usleep(10000);
+	upisnd::Encoder enc = upisnd::Encoder::setup("encoder", UPISND_PIN_B03, UPISND_PIN_PULL_UP, UPISND_PIN_B04, UPISND_PIN_PULL_UP);
 
 	pmcs.registerControl(enc);
 
 	ControlManager mgr;
 	mgr.addControlServer(&alsa);
 	mgr.addControlServer(&pmcs);
+
+	printf("pid: %d\n", getpid());
 
 	return mainloop(mgr);
 }

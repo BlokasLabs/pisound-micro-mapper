@@ -6,105 +6,11 @@
 #include <signal.h>
 
 #include <vector>
-#include <map>
 
+#include "control-manager.h"
 #include "control-server.h"
 #include "alsa-control-server.h"
 #include "upisnd-control-server.h"
-
-class ControlManager : protected IControlServer::IListener
-{
-public:
-	ControlManager()
-	{
-	}
-
-	void addControlServer(IControlServer *server)
-	{
-		m_ctrlServers.push_back({ server, 0 });
-		server->setListener(this);
-	}
-
-	size_t getNumFds() const
-	{
-		size_t n=0;
-		for (const auto &itr : m_ctrlServers)
-			n += itr.m_server->getNumFds();
-		return n;
-	}
-
-	int fillFds(struct pollfd *fds, size_t n) const
-	{
-		size_t total = 0;
-		for (const auto &itr : m_ctrlServers)
-		{
-			int cnt = itr.m_server->fillFds(fds, n);
-			if (cnt < 0)
-			{
-				fprintf(stderr, "IControlServer::fillFds failed! (%d)\n", cnt);
-				return cnt;
-			}
-			assert(cnt <= n);
-
-			total += cnt;
-			n -= cnt;
-			fds += cnt;
-
-			itr.m_numFds = cnt;
-		}
-		return total;
-	}
-
-	int handleFdEvents(struct pollfd *fds, size_t nfds, size_t nevents)
-	{
-		size_t total;
-		for (auto &itr : m_ctrlServers)
-		{
-			int n = itr.m_server->handleFdEvents(fds, itr.m_numFds, nevents);
-			fds += itr.m_numFds;
-
-			if (n < 0)
-			{
-				fprintf(stderr, "IControlServer::handleFdEvents failed! (%d)\n", n);
-				return n;
-			}
-
-			assert(n <= nevents);
-
-			total += n;
-
-			nevents -= n;
-
-			if (nevents == 0)
-				break;
-		}
-
-		return total;
-	}
-
-private:
-	virtual void onControlChange(IControl *control) override
-	{
-		printf("Control %s changed! Value: %d\n", control->getName(), control->getValue(-1));
-	}
-
-	struct server_t
-	{
-		IControlServer* m_server;
-		mutable size_t m_numFds;
-	};
-
-	std::vector<server_t> m_ctrlServers;
-};
-
-class MappingManager
-{
-public:
-
-
-private:
-	std::multimap<IControl*, IControl*> m_mappings;
-};
 
 static volatile sig_atomic_t signal_received = 0;
 
@@ -123,17 +29,12 @@ static int mainloop(ControlManager &mgr)
 	{
 		pfds.resize(mgr.getNumFds());
 		if ((err = mgr.fillFds(pfds.data(), pfds.size())) < 0)
-		{
 			return err;
-		}
 
 		err = ppoll(pfds.data(), pfds.size(), NULL, &emptyset);
 
 		if (signal_received)
-		{
-			printf("Signal received! S %d errno %d (%m)\n", signal_received, errno);
 			break;
-		}
 
 		if (err < 0)
 			return err;
@@ -249,20 +150,30 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
-	alsa.registerControl("Digital Playback Volume");
-	alsa.registerControl("Digital Capture Volume");
+	IControl *pv = alsa.registerControl("Digital Playback Volume");
+	IControl *cv = alsa.registerControl("Digital Capture Volume");
 
 	PisoundMicroControlServer pmcs;
 
 	upisnd::Encoder enc = upisnd::Encoder::setup("encoder", UPISND_PIN_B03, UPISND_PIN_PULL_UP, UPISND_PIN_B04, UPISND_PIN_PULL_UP);
 
-	pmcs.registerControl(enc);
+	IControl *e = pmcs.registerControl(enc);
 
 	ControlManager mgr;
 	mgr.addControlServer(&alsa);
 	mgr.addControlServer(&pmcs);
 
+	mgr.map(*e, *pv);
+	mgr.map(*e, *cv);
+
 	printf("pid: %d\n", getpid());
 
-	return mainloop(mgr);
+	err = mainloop(mgr);
+	if (err < 0)
+	{
+		fprintf(stderr, "mainloop exited with (%d)!\n", err);
+		return EXIT_FAILURE;
+	}
+
+	return EXIT_SUCCESS;
 }

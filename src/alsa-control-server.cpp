@@ -2,18 +2,20 @@
 
 #include <errno.h>
 
-static int lookup_info(size_t &memberCount, snd_ctl_elem_id_t *id, snd_ctl_t *handle)
+int AlsaControlServer::lookupInfo(ctl_info_t &info, snd_ctl_elem_id_t *id, snd_ctl_t *handle)
 {
 	int err;
-	snd_ctl_elem_info_t *info;
-	snd_ctl_elem_info_alloca(&info);
+	snd_ctl_elem_info_t *i;
+	snd_ctl_elem_info_alloca(&i);
 
-	snd_ctl_elem_info_set_id(info, id);
-	if ((err = snd_ctl_elem_info(handle, info)) < 0)
+	snd_ctl_elem_info_set_id(i, id);
+	if ((err = snd_ctl_elem_info(handle, i)) < 0)
 		return err;
 
-	snd_ctl_elem_info_get_id(info, id);
-	memberCount = snd_ctl_elem_info_get_count(info);
+	snd_ctl_elem_info_get_id(i, id);
+	info.m_memberCount = snd_ctl_elem_info_get_count(i);
+	info.m_low = snd_ctl_elem_info_get_min(i);
+	info.m_high = snd_ctl_elem_info_get_max(i);
 
 	return 0;
 }
@@ -107,8 +109,8 @@ IControl *AlsaControlServer::registerControl(const char *name)
 
 	snd_ctl_elem_id_set_interface(id, SND_CTL_ELEM_IFACE_MIXER);
 	snd_ctl_elem_id_set_name(id, name);
-	size_t memberCount;
-	if ((err = lookup_info(memberCount, id, m_handle)) < 0)
+	ctl_info_t info;
+	if ((err = lookupInfo(info, id, m_handle)) < 0)
 	{
 		snd_ctl_elem_id_free(id);
 		errno = -err;
@@ -124,7 +126,7 @@ IControl *AlsaControlServer::registerControl(const char *name)
 		return NULL;
 	}
 
-	auto r = m_controls.emplace(std::piecewise_construct, std::forward_as_tuple(numid), std::forward_as_tuple(m_handle, id, memberCount, strdup(name)));
+	auto r = m_controls.emplace(std::piecewise_construct, std::forward_as_tuple(numid), std::forward_as_tuple(m_handle, id, info, strdup(name)));
 
 	return &r.first->second;
 }
@@ -134,10 +136,10 @@ void AlsaControlServer::removeControl(IControl *ctrl)
 	// todo
 }
 
-AlsaControlServer::Control::Control(snd_ctl_t *handle, snd_ctl_elem_id_t *id, size_t memberCount, const char *name)
+AlsaControlServer::Control::Control(snd_ctl_t *handle, snd_ctl_elem_id_t *id, const ctl_info_t &info, const char *name)
 	:m_handle(handle)
 	,m_id(id)
-	,m_memberCount(memberCount)
+	,m_info(info)
 	,m_name(name)
 {
 }
@@ -161,14 +163,19 @@ const char *AlsaControlServer::Control::getName() const
 	return m_name;
 }
 
+int AlsaControlServer::Control::getMemberCount() const
+{
+	return m_info.m_memberCount;
+}
+
 int AlsaControlServer::Control::getLow() const
 {
-	return 0;
+	return m_info.m_low;
 }
 
 int AlsaControlServer::Control::getHigh() const
 {
-	return 100;
+	return m_info.m_high;
 }
 
 int AlsaControlServer::Control::setValue(int value, int index)
@@ -177,9 +184,9 @@ int AlsaControlServer::Control::setValue(int value, int index)
 	snd_ctl_elem_value_alloca(&v);
 	snd_ctl_elem_value_set_id(v, m_id);
 
-	if (index < 0 || index >= m_memberCount)
+	if (index < 0 || index >= m_info.m_memberCount)
 	{
-		for (size_t i=0; i<m_memberCount; ++i)
+		for (size_t i=0; i<m_info.m_memberCount; ++i)
 			snd_ctl_elem_value_set_integer(v, i, value);
 	}
 	else snd_ctl_elem_value_set_integer(v, index, value);
@@ -194,7 +201,7 @@ int AlsaControlServer::Control::getValue(int index) const
 	snd_ctl_elem_value_set_id(v, m_id);
 	snd_ctl_elem_read(m_handle, v);
 
-	if (index < 0 || index >= m_memberCount)
+	if (index < 0 || index >= m_info.m_memberCount)
 		index = 0;
 
 	return snd_ctl_elem_value_get_integer(v, index);

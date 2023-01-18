@@ -37,6 +37,8 @@ public:
 
 	virtual const char *getName() const override;
 
+	virtual int getMemberCount() const override;
+
 	virtual int getLow() const override;
 	virtual int getHigh() const override;
 

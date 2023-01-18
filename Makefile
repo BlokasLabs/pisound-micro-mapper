@@ -22,7 +22,7 @@ all: pisound-micro-mapper
 %.o: %.c %.cpp
 	$(CC) $(CFLAGS) -c $< -o $@
 
-pisound-micro-mapper: src/alsa-control-server.o src/main.o src/upisnd-control-server.o src/dtors.o
+pisound-micro-mapper: src/control-manager.o src/alsa-control-server.o src/main.o src/upisnd-control-server.o src/dtors.o
 	$(CXX) $(CFLAGS) $^ -lpthread -lasound -lpisoundmicro -o $@
 
 install: pisound-micro-mapper

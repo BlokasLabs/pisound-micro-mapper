@@ -13,6 +13,8 @@ public:
 	virtual int getLow() const = 0;
 	virtual int getHigh() const = 0;
 
+	virtual int getMemberCount() const = 0;
+
 	virtual int setValue(int value, int index) = 0;
 	virtual int getValue(int index) const = 0;
 };

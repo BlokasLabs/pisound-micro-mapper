@@ -119,6 +119,11 @@ const char *PisoundMicroControlServer::Control::getName() const
 	return m_element.getName();
 }
 
+int PisoundMicroControlServer::Control::getMemberCount() const
+{
+	return 1;
+}
+
 int PisoundMicroControlServer::Control::getLow() const
 {
 	switch (m_element.getType())

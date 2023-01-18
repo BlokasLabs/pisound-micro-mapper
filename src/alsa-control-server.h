@@ -26,6 +26,14 @@ public:
 
 private:
 	class Control;
+	struct ctl_info_t
+	{
+		size_t m_memberCount;
+		int m_low;
+		int m_high;
+	};
+
+	static int lookupInfo(ctl_info_t &info, snd_ctl_elem_id_t *id, snd_ctl_t *handle);
 
 	std::map<unsigned int, Control> m_controls;
 
@@ -36,10 +44,12 @@ private:
 class AlsaControlServer::Control : public IControl
 {
 public:
-	Control(snd_ctl_t *handle, snd_ctl_elem_id_t *id, size_t memberCount, const char *name);
+	Control(snd_ctl_t *handle, snd_ctl_elem_id_t *id, const ctl_info_t &info, const char *name);
 	virtual ~Control();
 
 	virtual const char *getName() const override;
+
+	virtual int getMemberCount() const override;
 
 	virtual int getLow() const override;
 	virtual int getHigh() const override;
@@ -50,7 +60,7 @@ public:
 private:
 	snd_ctl_t *m_handle;
 	snd_ctl_elem_id_t *m_id;
-	const size_t m_memberCount;
+	const ctl_info_t m_info;
 	const char *m_name;
 };
 

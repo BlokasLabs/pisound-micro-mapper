@@ -157,6 +157,13 @@ int main(int argc, char **argv)
 
 	upisnd::Encoder enc = upisnd::Encoder::setup("encoder", UPISND_PIN_B03, UPISND_PIN_PULL_UP, UPISND_PIN_B04, UPISND_PIN_PULL_UP);
 
+	upisnd_encoder_opts_t opts;
+	opts.input_range.low  = 0;
+	opts.input_range.high = 18;
+	opts.value_range      = opts.input_range;
+	opts.value_mode       = UPISND_VALUE_MODE_CLAMP;
+	enc.setOpts(opts);
+
 	IControl *e = pmcs.registerControl(enc);
 
 	ControlManager mgr;
@@ -164,7 +171,7 @@ int main(int argc, char **argv)
 	mgr.addControlServer(&pmcs);
 
 	mgr.map(*e, *pv);
-	mgr.map(*e, *cv);
+	//mgr.map(*e, *cv);
 
 	printf("pid: %d\n", getpid());
 

@@ -28,6 +28,7 @@ private:
 	class Control;
 	struct ctl_info_t
 	{
+		unsigned int m_numid;
 		size_t m_memberCount;
 		int m_low;
 		int m_high;

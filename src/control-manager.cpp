@@ -96,9 +96,9 @@ void ControlManager::onControlChange(IControl *from)
 		int dst_high = to->getHigh();
 
 		int v = calc(value, src_low, src_high, dst_low, dst_high);
-		printf("v=%d (%d, %d, %d, %d, %d)\n", v, value, src_low, src_high, dst_low, dst_high);
+		printf("v=%d (%d, %d, %d, %d, %d) -> %d\n", v, value, src_low, src_high, dst_low, dst_high, to->setValue(v, 0));
 
-		for (int idx=0; idx<to->getMemberCount(); ++idx)
-			to->setValue(v, idx);
+		//for (int idx=0; idx<to->getMemberCount(); ++idx)
+		//	to->setValue(v, idx);
 	}
-}
+}	

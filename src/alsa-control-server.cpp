@@ -13,6 +13,7 @@ int AlsaControlServer::lookupInfo(ctl_info_t &info, snd_ctl_elem_id_t *id, snd_c
 		return err;
 
 	snd_ctl_elem_info_get_id(i, id);
+	info.m_numid = snd_ctl_elem_id_get_numid(id);
 	info.m_memberCount = snd_ctl_elem_info_get_count(i);
 	info.m_low = snd_ctl_elem_info_get_min(i);
 	info.m_high = snd_ctl_elem_info_get_max(i);
@@ -117,16 +118,14 @@ IControl *AlsaControlServer::registerControl(const char *name)
 		return NULL;
 	}
 
-	unsigned int numid = snd_ctl_elem_id_get_numid(id);
-
-	if (m_controls.find(numid) != m_controls.end())
+	if (m_controls.find(info.m_numid) != m_controls.end())
 	{
 		snd_ctl_elem_id_free(id);
 		errno = EEXIST;
 		return NULL;
 	}
 
-	auto r = m_controls.emplace(std::piecewise_construct, std::forward_as_tuple(numid), std::forward_as_tuple(m_handle, id, info, strdup(name)));
+	auto r = m_controls.emplace(std::piecewise_construct, std::forward_as_tuple(info.m_numid), std::forward_as_tuple(m_handle, id, info, strdup(name)));
 
 	return &r.first->second;
 }
@@ -178,20 +177,70 @@ int AlsaControlServer::Control::getHigh() const
 	return m_info.m_high;
 }
 
+int lookup_id(snd_ctl_elem_id_t *id, snd_ctl_t *handle)
+{
+	int err;
+	snd_ctl_elem_info_t *info;
+	snd_ctl_elem_info_alloca(&info);
+
+	snd_ctl_elem_info_set_id(info, id);
+	if ((err = snd_ctl_elem_info(handle, info)) < 0) {
+		fprintf(stderr, "Cannot find the given element from card\n");
+		return err;
+	}
+	snd_ctl_elem_info_get_id(info, id);
+
+	return 0;
+}
+
 int AlsaControlServer::Control::setValue(int value, int index)
 {
-	snd_ctl_elem_value_t *v;
+	snd_ctl_elem_value_t *v, *o;
 	snd_ctl_elem_value_alloca(&v);
-	snd_ctl_elem_value_set_id(v, m_id);
+	snd_ctl_elem_value_alloca(&o);
+	//snd_ctl_elem_value_set_id(v, m_id);
 
-	if (index < 0 || index >= m_info.m_memberCount)
+	snd_ctl_elem_lock(m_handle, m_id);
+
+	snd_ctl_elem_value_set_numid(o, m_info.m_numid);
+
+	snd_ctl_elem_read(m_handle, o);
+
+	int oldval[2];
+	oldval[0] = snd_ctl_elem_value_get_integer(o, 0);
+	oldval[1] = snd_ctl_elem_value_get_integer(o, 1);
+
+	for (size_t i=0; i<m_info.m_memberCount; ++i)
 	{
-		for (size_t i=0; i<m_info.m_memberCount; ++i)
+		if (index < 0 || index >= m_info.m_memberCount || index == i)
+		{
+			printf("Setting new value[%d] -> %d\n", i, value);
 			snd_ctl_elem_value_set_integer(v, i, value);
-	}
-	else snd_ctl_elem_value_set_integer(v, index, value);
+		}
+		else
+		{
+			printf("Reusing old value[%d] -> %d\n", i, oldval[i]);
+			snd_ctl_elem_value_set_integer(v, i, oldval[i]+1);
+		}
 
-	return snd_ctl_elem_write(m_handle, v);
+		//if (i == 0) snd_ctl_elem_value_set_integer(v, i, value);
+		//else snd_ctl_elem_value_set_integer(v, i, 255-value);
+	}
+
+	//if (index < 0 || index >= m_info.m_memberCount)
+	//{
+	//	for (size_t i=0; i<m_info.m_memberCount; ++i)
+	//		snd_ctl_elem_value_set_integer(v, i, value);
+	//}
+	//else snd_ctl_elem_value_set_integer(v, index, value);
+
+	snd_ctl_elem_value_set_numid(v, m_info.m_numid);
+
+	snd_ctl_elem_write(m_handle, v);
+
+	snd_ctl_elem_unlock(m_handle, m_id);
+
+	return 0;
 }
 
 int AlsaControlServer::Control::getValue(int index) const

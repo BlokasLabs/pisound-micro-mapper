@@ -1,6 +1,7 @@
 #include "upisnd-control-server.h"
 
 #include <cstring>
+#include <cstdio>
 #include <errno.h>
 #include <fcntl.h>
 #include <poll.h>
@@ -17,6 +18,17 @@ PisoundMicroControlServer::~PisoundMicroControlServer()
 void PisoundMicroControlServer::setListener(IListener *listener)
 {
 	m_listener = listener;
+}
+
+int PisoundMicroControlServer::subscribe()
+{
+	// Read out all values, to clear any pending underlying FD events.
+	for (const auto &itr : m_controls)
+	{
+		itr.second.getValue(-1);
+	}
+
+	return 0;
 }
 
 size_t PisoundMicroControlServer::getNumFds() const

@@ -25,6 +25,11 @@ static int mainloop(ControlManager &mgr)
 	sigemptyset(&emptyset);
 	int err;
 	std::vector<pollfd> pfds;
+
+	err = mgr.subscribe();
+	if (err < 0)
+		return err;
+
 	while (signal_received == 0)
 	{
 		pfds.resize(mgr.getNumFds());
@@ -171,7 +176,7 @@ int main(int argc, char **argv)
 	mgr.addControlServer(&pmcs);
 
 	mgr.map(*e, *pv);
-	//mgr.map(*e, *cv);
+	mgr.map(*pv, *e);
 
 	printf("pid: %d\n", getpid());
 

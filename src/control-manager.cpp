@@ -1,7 +1,23 @@
 #include "control-manager.h"
 
+#include <algorithm>
 #include <cassert>
+#include <cstdio>
 #include <poll.h>
+
+static int calc(int value, int src_low, int src_high, int dst_low, int dst_high)
+{
+	return (int)(((float)(value - src_low) / (src_high - src_low)) * (dst_high - dst_low) + dst_low);
+}
+
+ControlManager::map_options_t ControlManager::defaultMapOptions()
+{
+	map_options_t opts;
+
+	opts.m_index = -1;
+
+	return opts;
+}
 
 ControlManager::ControlManager()
 {
@@ -13,9 +29,27 @@ void ControlManager::addControlServer(IControlServer *server)
 	server->setListener(this);
 }
 
-void ControlManager::map(IControl &from, IControl &to)
+void ControlManager::map(IControl &from, IControl &to, const map_options_t &opts)
 {
-	m_mappings.insert(std::make_pair(&from, &to));
+	m_mappings.insert(std::make_pair(&from, mapping_t { &from, &to, opts }));
+	int v = calc(to.getValue(opts.m_index), to.getLow(), to.getHigh(), from.getLow(), from.getHigh());
+	from.setValue(v, opts.m_index);
+	//maskControlChangeEvent(&from, v, opts.m_index);
+}
+
+int ControlManager::subscribe()
+{
+	for (auto &itr : m_ctrlServers)
+	{
+		int err = itr.m_server->subscribe();
+		if (err < 0)
+		{
+			fprintf(stderr, "IControlServer::subscribe failed! (%d)\n", err);
+			return err;
+		}
+	}
+
+	return 0;
 }
 
 size_t ControlManager::getNumFds() const
@@ -75,30 +109,73 @@ int ControlManager::handleFdEvents(struct pollfd *fds, size_t nfds, size_t neven
 	return total;
 }
 
-static int calc(int value, int src_low, int src_high, int dst_low, int dst_high)
-{
-	return (int)(((float)(value - src_low) / (src_high - src_low)) * (dst_high - dst_low) + dst_low);
-}
-
 void ControlManager::onControlChange(IControl *from)
 {
 	printf("Control %s changed! Value: %d\n", from->getName(), from->getValue(-1));
 
-	int value = from->getValue(-1);
 	int src_low = from->getLow();
 	int src_high = from->getHigh();
 
 	auto items = m_mappings.equal_range(from);
 	for (auto itr = items.first; itr != items.second; ++itr)
 	{
-		IControl *to = itr->second;
+		int idx = itr->second.m_opts.m_index;
+
+		IControl *to = itr->second.m_to;
 		int dst_low = to->getLow();
 		int dst_high = to->getHigh();
 
-		int v = calc(value, src_low, src_high, dst_low, dst_high);
-		printf("v=%d (%d, %d, %d, %d, %d) -> %d\n", v, value, src_low, src_high, dst_low, dst_high, to->setValue(v, 0));
+		int fromValue = from->getValue(idx);
+
+		bool masked = isControlChangeEventMasked(from, fromValue, idx);
+		unmaskControlChangeEvent(from);
+
+		if (masked)
+		{
+			printf("Ignoring masked event.\n");
+			continue;
+		}
+
+		int toValue = calc(fromValue, src_low, src_high, dst_low, dst_high);
+		int res = to->setValue(toValue, idx);
+		maskControlChangeEvent(to, toValue, idx);
+		printf("v=%d (%d, %d, %d, %d, %d) -> %d\n", toValue, fromValue, src_low, src_high, dst_low, dst_high, res);
 
 		//for (int idx=0; idx<to->getMemberCount(); ++idx)
 		//	to->setValue(v, idx);
 	}
-}	
+}
+
+void ControlManager::maskControlChangeEvent(IControl *control, int value, int index)
+{
+	m_maskedControlChangeEvents.push_back(masked_control_change_event_t { control, value, index });
+}
+
+bool ControlManager::isControlChangeEventMasked(IControl *control, int value, int index) const
+{
+	return std::find(m_maskedControlChangeEvents.begin(), m_maskedControlChangeEvents.end(), masked_control_change_event_t { control, value, index }) != m_maskedControlChangeEvents.end();
+}
+
+void ControlManager::unmaskControlChangeEvent(IControl *control)
+{
+	switch (m_maskedControlChangeEvents.size())
+	{
+	case 1:
+		m_maskedControlChangeEvents.pop_back();
+		// Fallthrough intentional.
+	case 0:
+		return;
+	default:
+		break;
+	}
+
+	auto item = std::find_if(
+		m_maskedControlChangeEvents.begin(), m_maskedControlChangeEvents.end(),
+		[control](const masked_control_change_event_t &e)
+		{
+			return control == e.m_control;
+		});
+
+	std::iter_swap(item, m_maskedControlChangeEvents.rbegin());
+	m_maskedControlChangeEvents.pop_back();
+}

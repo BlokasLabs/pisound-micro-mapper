@@ -14,6 +14,8 @@ public:
 
 	virtual void setListener(IListener *listener) override;
 
+	virtual int subscribe() override;
+
 	virtual size_t getNumFds() const override;
 	virtual int fillFds(struct pollfd *fds, size_t n) const override;
 	virtual int handleFdEvents(struct pollfd *fds, size_t nfds, size_t nevents) override;

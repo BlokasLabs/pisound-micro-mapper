@@ -32,6 +32,8 @@ public:
 
 	virtual void setListener(IListener *listener) = 0;
 
+	virtual int subscribe() = 0;
+
 	virtual size_t getNumFds() const = 0;
 	virtual int fillFds(struct pollfd *fds, size_t n) const = 0;
 	virtual int handleFdEvents(struct pollfd *fds, size_t nfds, size_t nevents) = 0;

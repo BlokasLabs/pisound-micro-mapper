@@ -1,0 +1,3 @@
+[submodule "tps/rapidjson"]
+	path = tps/rapidjson
+	url = https://github.com/BlokasLabs/rapidjson.git

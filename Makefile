@@ -5,7 +5,7 @@ BINDIR?=$(PREFIX)/bin
 CC?=cc
 AR?=ar
 
-CFLAGS?=-O3
+CFLAGS?=-O3 -Itps/rapidjson/include
 
 INSTALL?=install
 INSTALL_PROGRAM?=$(INSTALL)
@@ -22,7 +22,7 @@ all: pisound-micro-mapper
 %.o: %.c %.cpp
 	$(CC) $(CFLAGS) -c $< -o $@
 
-pisound-micro-mapper: src/control-manager.o src/alsa-control-server.o src/main.o src/upisnd-control-server.o src/dtors.o
+pisound-micro-mapper: src/control-manager.o src/alsa-control-server.o src/main.o src/upisnd-control-server.o src/dtors.o src/config-loader.o src/logger.o
 	$(CXX) $(CFLAGS) $^ -lpthread -lasound -lpisoundmicro -o $@
 
 install: pisound-micro-mapper

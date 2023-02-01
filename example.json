@@ -1,19 +1,26 @@
 {
-	"version" : "1.0",
-	"elements" : {
-		"volume_enc": {
-			"type" : "encoder",
-			"pins" : [ "B03", "up", "B04", "up" ],
-			"input_low" : 0,
-			"input_high" : 24
+	"version" : 1,
+	"controls": {
+		"pisound-micro": {
+			"volume_enc": {
+				"type" : "encoder",
+				"pins" : [ "B03", "pull_up", "B04", "pull_up" ],
+				"input_low" : 0,
+				"input_high" : 24
+			}
 		},
-		"balance" : {}
-	},
-	"mappings" : {
-		"alsa" : {
-			"hw:pisound-micro" : [
-				[ "Digital Playback Volume", "volume_enc", { "index": -1 } ]
+		"alsa": {
+			"hw:pisound-micro": [
+				"Digital Playback Volume",
+				[ "Digital Capture Volume", { "alias": "rec_vol" } ]
 			]
+		},
+		"midi" : {
+		},
+		"osc" : {
 		}
-	}
+	},
+	"mappings" : [
+		[ "Digital Playback Volume", "->", "volume_enc", { "index": -1 } ]
+	]
 }

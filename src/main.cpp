@@ -11,6 +11,7 @@
 #include "control-server.h"
 #include "alsa-control-server.h"
 #include "upisnd-control-server.h"
+#include "logger.h"
 
 static volatile sig_atomic_t signal_received = 0;
 
@@ -55,6 +56,9 @@ static int mainloop(ControlManager &mgr)
 
 int main(int argc, char **argv)
 {
+	static StdioLogger stdioLogger;
+	Logger::registerLogger(stdioLogger);
+
 	struct sigaction sa;
 	sigemptyset(&sa.sa_mask);
 	sigaddset(&sa.sa_mask, SIGINT);
@@ -72,7 +76,7 @@ int main(int argc, char **argv)
 
 	if (initializer.getResult() < 0)
 	{
-		fprintf(stderr, "Failed to initialize libpisoundmicro! Error %d (%m)\n", errno);
+		LOG_ERROR("Failed to initialize libpisoundmicro! Error %d (%m)\n", errno);
 		return 1;
 	}
 
@@ -147,18 +151,18 @@ int main(int argc, char **argv)
 	snd_ctl_close(ctl);
 #endif
 
-	AlsaControlServer alsa;
+	std::shared_ptr<AlsaControlServer> alsa = std::make_shared<AlsaControlServer>();
 
-	if ((err = alsa.init("hw:micro")) < 0)
+	if ((err = alsa->init("hw:micro")) < 0)
 	{
-		fprintf(stderr, "Failed to init AlsaControlServer (%d)\n", err);
+		LOG_ERROR("Failed to init AlsaControlServer! (%d)\n", err);
 		return 1;
 	}
 
-	IControl *pv = alsa.registerControl("Digital Playback Volume");
-	IControl *cv = alsa.registerControl("Digital Capture Volume");
+	IControl *pv = alsa->registerControl("Digital Playback Volume");
+	IControl *cv = alsa->registerControl("Digital Capture Volume");
 
-	PisoundMicroControlServer pmcs;
+	std::shared_ptr<PisoundMicroControlServer> pmcs = std::make_shared<PisoundMicroControlServer>();
 
 	upisnd::Encoder enc = upisnd::Encoder::setup("encoder", UPISND_PIN_B03, UPISND_PIN_PULL_UP, UPISND_PIN_B04, UPISND_PIN_PULL_UP);
 
@@ -169,21 +173,21 @@ int main(int argc, char **argv)
 	opts.value_mode       = UPISND_VALUE_MODE_CLAMP;
 	enc.setOpts(opts);
 
-	IControl *e = pmcs.registerControl(enc);
+	IControl *e = pmcs->registerControl(enc);
 
 	ControlManager mgr;
-	mgr.addControlServer(&alsa);
-	mgr.addControlServer(&pmcs);
+	mgr.addControlServer(alsa);
+	mgr.addControlServer(pmcs);
 
 	mgr.map(*e, *pv);
 	mgr.map(*pv, *e);
 
-	printf("pid: %d\n", getpid());
+	LOG_INFO("pid: %d\n", getpid());
 
 	err = mainloop(mgr);
 	if (err < 0)
 	{
-		fprintf(stderr, "mainloop exited with (%d)!\n", err);
+		LOG_ERROR("mainloop exited with (%d)!\n", err);
 		return EXIT_FAILURE;
 	}
 

@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <map>
+#include <memory>
 
 #include "control-server.h"
 
@@ -11,7 +12,7 @@ class ControlManager : protected IControlServer::IListener
 public:
 	ControlManager();
 
-	void addControlServer(IControlServer *server);
+	void addControlServer(std::shared_ptr<IControlServer> server);
 
 	struct map_options_t
 	{
@@ -37,7 +38,7 @@ private:
 
 	struct server_t
 	{
-		IControlServer* m_server;
+		std::shared_ptr<IControlServer> m_server;
 		mutable size_t m_numFds;
 	};
 

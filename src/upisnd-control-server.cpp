@@ -1,5 +1,7 @@
 #include "upisnd-control-server.h"
 
+#include "logger.h"
+
 #include <cstring>
 #include <cstdio>
 #include <errno.h>
@@ -57,7 +59,7 @@ int PisoundMicroControlServer::handleFdEvents(struct pollfd *fds, size_t nfds, s
 	size_t i=0, j=0;
 	while (i < nfds && j < nevents)
 	{
-		printf("fd %d events %04x Revents %04x\n", fds[i].fd, fds[i].events, fds[i].revents);
+		LOG_DEBUG("fd %d events %04x Revents %04x\n", fds[i].fd, fds[i].events, fds[i].revents);
 		if (fds[i].revents & POLLPRI)
 		{
 			if (m_listener)

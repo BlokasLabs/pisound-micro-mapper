@@ -5,9 +5,9 @@
 #include <cstdarg>
 
 #ifndef NO_LOGGING
-#	define LOG_ERROR(fmt, ...) Logger::error(fmt, ## __VA_ARGS__)
-#	define LOG_INFO( fmt, ...) Logger::info (fmt, ## __VA_ARGS__)
-#	define LOG_DEBUG(fmt, ...) Logger::debug(fmt, ## __VA_ARGS__)
+#	define LOG_ERROR(fmt, ...) do { if (Logger::isEnabled()) Logger::error(fmt "\n", ## __VA_ARGS__); } while (0)
+#	define LOG_INFO( fmt, ...) do { if (Logger::isEnabled()) Logger::info (fmt "\n", ## __VA_ARGS__); } while (0)
+#	define LOG_DEBUG(fmt, ...) do { if (Logger::isEnabled()) Logger::debug(fmt "\n", ## __VA_ARGS__); } while (0)
 #else
 #	define LOG_ERROR(fmt, ...) do {} while(0)
 #	define LOG_INFO( fmt, ...) do {} while(0)
@@ -21,19 +21,23 @@ class Logger
 public:
 	enum Level
 	{
-		ERROR,
-		INFO,
-		DEBUG
+		LEVEL_ERROR,
+		LEVEL_INFO,
+		LEVEL_DEBUG
 	};
+
+	static bool isEnabled();
+
+	static void setEnabled(bool on);
 
 	static void registerLogger(ILogger &logger);
 
 	static void logv(Level lvl, const char *format, va_list ap);
 
 	inline static void log(Level lvl, const char *format, ...) { va_list ap; va_start(ap, format); logv(lvl, format, ap); va_end(ap); }
-	inline static void error(const char *format, ...) { va_list ap; va_start(ap, format); logv(ERROR, format, ap); va_end(ap); }
-	inline static void info (const char *format, ...) { va_list ap; va_start(ap, format); logv(INFO,  format, ap); va_end(ap); }
-	inline static void debug(const char *format, ...) { va_list ap; va_start(ap, format); logv(DEBUG, format, ap); va_end(ap); }
+	inline static void error(const char *format, ...) { va_list ap; va_start(ap, format); logv(LEVEL_ERROR, format, ap); va_end(ap); }
+	inline static void info (const char *format, ...) { va_list ap; va_start(ap, format); logv(LEVEL_INFO,  format, ap); va_end(ap); }
+	inline static void debug(const char *format, ...) { va_list ap; va_start(ap, format); logv(LEVEL_DEBUG, format, ap); va_end(ap); }
 };
 
 class ILogger

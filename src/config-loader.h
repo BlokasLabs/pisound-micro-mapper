@@ -22,7 +22,7 @@ public:
 	virtual ~IControlServerLoader() = 0;
 
 	virtual const char *getJsonName() const = 0;
-	virtual int processJson(IControlRegister &reg, const rapidjson::Value::ConstObject &object) = 0;
+	virtual int processJson(ControlManager &mgr, IControlRegister &reg, const rapidjson::Value::ConstObject &object) = 0;
 };
 
 class ConfigLoader

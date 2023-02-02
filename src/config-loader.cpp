@@ -38,7 +38,7 @@ public:
 		auto ret = m_reg.insert(std::make_pair(std::move(name), &ctrl));
 		if (!ret.second)
 		{
-			LOG_ERROR(R"(Control "%s" already existed, use an alias!\n)", ret.first->first.c_str());
+			LOG_ERROR(R"(Control "%s" already existed, use an alias!)", ret.first->first.c_str());
 			return false;
 		}
 
@@ -99,7 +99,7 @@ static int parseMapping(mapping_info_t &info, rapidjson::Value::ConstArray m)
 
 int ConfigLoader::processJson(ControlManager &mgr, const rapidjson::Document &config)
 {
-	if (config.HasParseError() || !config.IsObject())
+	if (!config.IsObject())
 		return -EINVAL;
 
 	// validate schema...
@@ -119,15 +119,15 @@ int ConfigLoader::processJson(ControlManager &mgr, const rapidjson::Document &co
 		decltype(m_csLoaders)::const_iterator loader = m_csLoaders.find(srv);
 		if (loader == m_csLoaders.end())
 		{
-			LOG_ERROR(R"(No loader for "%s"\n)", srv);
+			LOG_ERROR(R"(No loader for "%s")", srv);
 			continue;
 		}
 
-		err = loader->second->processJson(reg, ctrl->value.GetObject());
+		err = loader->second->processJson(mgr, reg, ctrl->value.GetObject());
 
 		if (err < 0)
 		{
-			LOG_ERROR(R"(Processing "%s" resulted in error %d!\n)", srv, err);
+			LOG_ERROR(R"(Processing "%s" resulted in error %d!)", srv, err);
 			goto error;
 		}
 	}
@@ -139,7 +139,7 @@ int ConfigLoader::processJson(ControlManager &mgr, const rapidjson::Document &co
 		err = parseMapping(info, m->GetArray());
 		if (err < 0)
 		{
-			LOG_ERROR(R"(Parsing mapping %d failed with error %d!\n)", controlIdx, err);
+			LOG_ERROR(R"(Parsing mapping %d failed with error %d!)", controlIdx, err);
 			goto error;
 		}
 
@@ -148,20 +148,16 @@ int ConfigLoader::processJson(ControlManager &mgr, const rapidjson::Document &co
 		{
 			if (!c[i])
 			{
-				LOG_ERROR(R"(Mapped control %d "%s" not found!\n)", controlIdx, (i == 0 ? info.a : info.b).c_str());
+				LOG_ERROR(R"(Mapped control %d "%s" not found!)", controlIdx, (i == 0 ? info.a : info.b).c_str());
 				err = -ENOENT;
 				goto error;
 			}
 		}
 
 		if (info.dir & A_TO_B)
-		{
 			mgr.map(*c[0], *c[1], info.opts);
-		}
 		if (info.dir & B_TO_A)
-		{
 			mgr.map(*c[1], *c[0], info.opts);
-		}
 
 		++controlIdx;
 	}

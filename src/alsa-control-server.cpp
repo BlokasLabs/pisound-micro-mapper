@@ -96,7 +96,7 @@ int AlsaControlServer::handleFdEvents(struct pollfd *fds, size_t nfds, size_t ne
 						unsigned int mask = snd_ctl_event_elem_get_mask(event);
 						if (mask == SND_CTL_EVENT_MASK_REMOVE)
 						{
-							LOG_DEBUG("Control %d removed!\n", numid);
+							LOG_DEBUG("Control %d removed!", numid);
 							m_controls.erase(item);
 						}
 						else if (mask & SND_CTL_EVENT_MASK_VALUE)

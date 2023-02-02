@@ -1,16 +1,23 @@
-#include <pisound-micro.h>
-#include <alsa/asoundlib.h>
 #include <cassert>
 #include <cstdio>
 #include <poll.h>
 #include <signal.h>
 
 #include <vector>
+#include <fstream>
+
+#include <rapidjson/document.h>
+#include <rapidjson/istreamwrapper.h>
+#include <rapidjson/error/error.h>
+#include <rapidjson/error/en.h>
 
 #include "control-manager.h"
 #include "control-server.h"
 #include "alsa-control-server.h"
 #include "upisnd-control-server.h"
+#include "config-loader.h"
+#include "alsa-control-server-loader.h"
+#include "upisnd-control-server-loader.h"
 #include "logger.h"
 
 static volatile sig_atomic_t signal_received = 0;
@@ -54,10 +61,43 @@ static int mainloop(ControlManager &mgr)
 	return 0;
 }
 
+static int loadConfig(ControlManager &mgr, const char *file)
+{
+	std::ifstream stream;
+
+	stream.open(file, std::ifstream::in);
+
+	if (!stream.good())
+	{
+		LOG_ERROR(R"(Failed to open "%s"!)", file);
+	}
+
+	ConfigLoader cfgLoader;
+
+	AlsaControlServerLoader alsaLoader;
+	PisoundMicroControlServerLoader upisndLoader;
+
+	cfgLoader.registerControlServerLoader(alsaLoader);
+	cfgLoader.registerControlServerLoader(upisndLoader);
+
+	rapidjson::Document doc;
+	rapidjson::IStreamWrapper isw(stream);
+	rapidjson::ParseResult ok = doc.ParseStream(isw);
+
+	if (!ok)
+	{
+		LOG_ERROR(R"(Parsing "%s" failed: %s (%u))", file, rapidjson::GetParseError_En(ok.Code()), ok.Offset());
+		return -EPROTO;
+	}
+
+	return cfgLoader.processJson(mgr, doc);
+}
+
 int main(int argc, char **argv)
 {
 	static StdioLogger stdioLogger;
 	Logger::registerLogger(stdioLogger);
+	Logger::setEnabled(true);
 
 	struct sigaction sa;
 	sigemptyset(&sa.sa_mask);
@@ -71,123 +111,42 @@ int main(int argc, char **argv)
 	sigaction(SIGINT, &sa, NULL);
 	sigaction(SIGTERM, &sa, NULL);
 
+#if 0
 	int err;
 	upisnd::LibInitializer initializer;
 
 	if (initializer.getResult() < 0)
 	{
-		LOG_ERROR("Failed to initialize libpisoundmicro! Error %d (%m)\n", errno);
+		LOG_ERROR("Failed to initialize libpisoundmicro! Error %d (%m)", errno);
 		return 1;
 	}
-
-#if 0
-	snd_ctl_t *ctl;
-	int err = snd_ctl_open(&ctl, "hw:micro", SND_CTL_NONBLOCK);
-
-	if (err != 0)
-		return 1;
-
-	err = snd_ctl_subscribe_events(ctl, 1);
-	printf("Subs: %d\n", err);
-
-	snd_ctl_card_info_t *info;
-	snd_ctl_card_info_alloca(&info);
-
-	snd_ctl_card_info(ctl, info);
-
-	const char *name = snd_ctl_card_info_get_name(info);
-
-	snd_ctl_elem_id_t *id;
-	snd_ctl_elem_value_t *value;
-	snd_ctl_elem_id_alloca(&id);
-	snd_ctl_elem_value_alloca(&value);
-
-	snd_ctl_elem_id_set_interface(id, SND_CTL_ELEM_IFACE_MIXER);
-	snd_ctl_elem_id_set_name(id, "Digital Playback Volume");
-	if (err = lookup_id(id, ctl))
-		return err;
-
-	snd_ctl_elem_value_set_id(value, id);
-	snd_ctl_elem_value_set_integer(value, 0, 55);
-	snd_ctl_elem_value_set_integer(value, 1, 77);
-
-	if ((err = snd_ctl_elem_write(ctl, value)) < 0) {
-		fprintf(stderr, "Control element write error: %s\n",
-			snd_strerror(err));
-		return err;
-	}
-
-	err = snd_ctl_poll_descriptors_count(ctl);
-	printf("Descs: %d\n", err);
-
-	struct pollfd pfd[1];
-	memset(pfd, 0, sizeof(pfd));
-	err = snd_ctl_poll_descriptors(ctl, pfd, 1);
-	printf("snd_ctl_poll_descriptors: %d\n", err);
-
-	printf("fd=%d events=%08x revents=%08x\n", pfd[0].fd, pfd[0].events, pfd[0].revents);
-
-	err = poll(pfd, 1, 10000);
-	printf("poll = %d\n", err);
-
-	printf("fd=%d events=%08x revents=%08x\n", pfd[0].fd, pfd[0].events, pfd[0].revents);
-
-	//printf("Waiting...\n");
-	////err = snd_ctl_wait(ctl, 10000);
-	//printf("Done %d\n", err);
-
-	snd_ctl_event_t *event;
-	snd_ctl_event_alloca(&event);
-	do
-	{
-		err = snd_ctl_read(ctl, event);
-		printf("Read: %d\n", err);
-
-		printf("Type: %d\n", snd_ctl_event_get_type(event));
-		printf("Numid: %08x\n", snd_ctl_event_elem_get_numid(event));
-	}
-	while (err > 0);
-
-	snd_ctl_close(ctl);
-#endif
 
 	std::shared_ptr<AlsaControlServer> alsa = std::make_shared<AlsaControlServer>();
 
 	if ((err = alsa->init("hw:micro")) < 0)
 	{
-		LOG_ERROR("Failed to init AlsaControlServer! (%d)\n", err);
+		LOG_ERROR("Failed to init AlsaControlServer! (%d)", err);
 		return 1;
 	}
 
-	IControl *pv = alsa->registerControl("Digital Playback Volume");
-	IControl *cv = alsa->registerControl("Digital Capture Volume");
-
 	std::shared_ptr<PisoundMicroControlServer> pmcs = std::make_shared<PisoundMicroControlServer>();
-
-	upisnd::Encoder enc = upisnd::Encoder::setup("encoder", UPISND_PIN_B03, UPISND_PIN_PULL_UP, UPISND_PIN_B04, UPISND_PIN_PULL_UP);
-
-	upisnd_encoder_opts_t opts;
-	opts.input_range.low  = 0;
-	opts.input_range.high = 18;
-	opts.value_range      = opts.input_range;
-	opts.value_mode       = UPISND_VALUE_MODE_CLAMP;
-	enc.setOpts(opts);
-
-	IControl *e = pmcs->registerControl(enc);
+#endif
 
 	ControlManager mgr;
-	mgr.addControlServer(alsa);
-	mgr.addControlServer(pmcs);
 
-	mgr.map(*e, *pv);
-	mgr.map(*pv, *e);
+	int err = loadConfig(mgr, "example.json");
+	if (err < 0)
+	{
+		LOG_ERROR("Loading config failed with error %d! (%s)", err, strerror(-err));
+		return EXIT_FAILURE;
+	}
 
-	LOG_INFO("pid: %d\n", getpid());
+	LOG_INFO("pid: %d", getpid());
 
 	err = mainloop(mgr);
 	if (err < 0)
 	{
-		LOG_ERROR("mainloop exited with (%d)!\n", err);
+		LOG_ERROR("Main loop exited with error %d!", err);
 		return EXIT_FAILURE;
 	}
 

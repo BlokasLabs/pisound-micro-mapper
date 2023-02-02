@@ -46,7 +46,7 @@ int ControlManager::subscribe()
 		int err = itr.m_server->subscribe();
 		if (err < 0)
 		{
-			LOG_ERROR("IControlServer::subscribe failed! (%d)\n", err);
+			LOG_ERROR("IControlServer::subscribe failed! (%d)", err);
 			return err;
 		}
 	}
@@ -70,7 +70,7 @@ int ControlManager::fillFds(struct pollfd *fds, size_t n) const
 		int cnt = itr.m_server->fillFds(fds, n);
 		if (cnt < 0)
 		{
-			LOG_ERROR("IControlServer::fillFds failed! (%d)\n", cnt);
+			LOG_ERROR("IControlServer::fillFds failed! (%d)", cnt);
 			return cnt;
 		}
 		assert(cnt <= n);
@@ -94,7 +94,7 @@ int ControlManager::handleFdEvents(struct pollfd *fds, size_t nfds, size_t neven
 
 		if (n < 0)
 		{
-			LOG_ERROR("IControlServer::handleFdEvents failed! (%d)\n", n);
+			LOG_ERROR("IControlServer::handleFdEvents failed! (%d)", n);
 			return n;
 		}
 
@@ -113,7 +113,7 @@ int ControlManager::handleFdEvents(struct pollfd *fds, size_t nfds, size_t neven
 
 void ControlManager::onControlChange(IControl *from)
 {
-	LOG_DEBUG("Control %s changed! Value: %d\n", from->getName(), from->getValue(-1));
+	LOG_DEBUG("Control %s changed! Value: %d", from->getName(), from->getValue(-1));
 
 	int src_low = from->getLow();
 	int src_high = from->getHigh();
@@ -134,14 +134,14 @@ void ControlManager::onControlChange(IControl *from)
 
 		if (masked)
 		{
-			LOG_DEBUG("Ignoring masked event.\n");
+			LOG_DEBUG("Ignoring masked event.");
 			continue;
 		}
 
 		int toValue = calc(fromValue, src_low, src_high, dst_low, dst_high);
 		int res = to->setValue(toValue, idx);
 		maskControlChangeEvent(to, toValue, idx);
-		LOG_DEBUG("v=%d (%d, %d, %d, %d, %d) -> %d\n", toValue, fromValue, src_low, src_high, dst_low, dst_high, res);
+		LOG_DEBUG("v=%d (%d, %d, %d, %d, %d) -> %d", toValue, fromValue, src_low, src_high, dst_low, dst_high, res);
 
 		//for (int idx=0; idx<to->getMemberCount(); ++idx)
 		//	to->setValue(v, idx);

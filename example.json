@@ -2,11 +2,25 @@
 	"version" : 1,
 	"controls": {
 		"pisound-micro": {
+			"ctrl": {
+				"pins" : [ "B05", "pull_up", "B06", "pull_up" ],
+				"type": "encoder",
+				"mode": "clamp"
+			},
 			"volume_enc": {
 				"type" : "encoder",
 				"pins" : [ "B03", "pull_up", "B04", "pull_up" ],
 				"input_low" : 0,
 				"input_high" : 24
+			},
+			"volume_pot": {
+				"type": "analog_in",
+				"pin": "B10"
+			},
+			"led": {
+				"type": "gpio_output",
+				"pin": "B08",
+				"value": false
 			}
 		},
 		"alsa": {
@@ -14,10 +28,6 @@
 				"Digital Playback Volume",
 				[ "Digital Capture Volume", { "alias": "rec_vol" } ]
 			]
-		},
-		"midi" : {
-		},
-		"osc" : {
 		}
 	},
 	"mappings" : [

@@ -2,6 +2,10 @@
 
 pisound-micro-mapper
 
+src/config-schema.json
+src/config-schema.c
+schema-test
+
 **/Debug
 **/Release
 **/.vs

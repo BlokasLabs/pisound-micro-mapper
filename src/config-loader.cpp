@@ -38,7 +38,7 @@ public:
 		auto ret = m_reg.insert(std::make_pair(std::move(name), &ctrl));
 		if (!ret.second)
 		{
-			LOG_ERROR(R"(Control "%s" already existed, use an alias!)", ret.first->first.c_str());
+			LOG_ERROR(R"(Control "%s" already existed, use an alias or rename!)", ret.first->first.c_str());
 			return false;
 		}
 
@@ -101,8 +101,6 @@ int ConfigLoader::processJson(ControlManager &mgr, const rapidjson::Document &co
 {
 	if (!config.IsObject())
 		return -EINVAL;
-
-	// validate schema...
 
 	ControlRegister reg;
 

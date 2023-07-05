@@ -15,7 +15,7 @@
 			},
 			"volume_pot": {
 				"type": "analog_in",
-				"pin": "B10"
+				"pin": "B23"
 			},
 			"led": {
 				"type": "gpio_output",

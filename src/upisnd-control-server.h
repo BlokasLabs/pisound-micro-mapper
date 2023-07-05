@@ -24,6 +24,8 @@ public:
 	void removeControl(IControl *control);
 
 private:
+	upisnd::LibInitializer m_lib;
+
 	class Control;
 
 	std::map<int, Control>::iterator findByName(const char *name);

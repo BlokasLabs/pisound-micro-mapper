@@ -11,11 +11,13 @@ INSTALL?=install
 INSTALL_PROGRAM?=$(INSTALL)
 INSTALL_DATA?=$(INSTALL) -m 644
 
+CXXFLAGS=$(CFLAGS) -fno-rtti
+
+-include Makefile.local
+
 ifeq ($(DEBUG),yes)
 	CFLAGS += -DDEBUG -g -O0
 endif
-
-CXXFLAGS=$(CFLAGS) -fno-rtti
 
 all: pisound-micro-mapper
 
@@ -31,13 +33,13 @@ src/config-schema.c: src/config-schema.json
 	xxd -i < $^ >> $@
 	echo "};" >> $@
 	echo "const char *get_config_schema() { return config_schema; }" >> $@
-	echo "const size_t get_config_schema_len() { return sizeof(config_schema); }" >> $@
+	echo "const size_t get_config_schema_length() { return sizeof(config_schema); }" >> $@
 
 pisound-micro-mapper: src/config-schema.o src/control-manager.o src/alsa-control-server.o src/main.o src/upisnd-control-server.o src/dtors.o src/config-loader.o src/logger.o src/alsa-control-server-loader.o src/upisnd-control-server-loader.o
-	$(CXX) $(CFLAGS) $^ -lpthread -lasound $(shell pkg-config --libs libpisoundmicro) -o $@
+	$(CXX) $^ $(CFLAGS) -lpthread -lasound $(shell pkg-config --libs libpisoundmicro) -o $@
 
 schema-test: src/schema-test.cpp
-	$(CXX) $(CFLAGS) $^ -o $@
+	$(CXX) $^ $(CFLAGS) -o $@
 
 schema-check: src/config-schema.json schema-test
 	./schema-test src/config-schema.json example.json

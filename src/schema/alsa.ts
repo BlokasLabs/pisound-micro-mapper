@@ -1,1 +1,0 @@
-export type AlsaControl = string | [ string, { alias?: string }? ];

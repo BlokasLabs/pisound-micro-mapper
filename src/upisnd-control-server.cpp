@@ -8,13 +8,37 @@
 #include <fcntl.h>
 #include <poll.h>
 
+#include <pisound-micro.h>
+
+class PisoundMicroControlServer::Control : public IControl
+{
+public:
+	Control(upisnd::Element &&element, upisnd::ValueFd &&fd);
+
+	virtual const char *getName() const override;
+
+	virtual int getMemberCount() const override;
+
+	virtual int getLow() const override;
+	virtual int getHigh() const override;
+
+	virtual int setValue(int value, int index) override;
+	virtual int getValue(int index) const override;
+
+private:
+	upisnd::Element m_element;
+	upisnd::ValueFd m_value;
+};
+
 PisoundMicroControlServer::PisoundMicroControlServer()
 	:m_listener(NULL)
 {
+	upisnd_init();
 }
 
 PisoundMicroControlServer::~PisoundMicroControlServer()
 {
+	upisnd_uninit();
 }
 
 void PisoundMicroControlServer::setListener(IListener *listener)

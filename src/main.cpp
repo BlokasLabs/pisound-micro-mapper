@@ -10,13 +10,11 @@
 #include <rapidjson/istreamwrapper.h>
 #include <rapidjson/error/error.h>
 #include <rapidjson/error/en.h>
-#include <rapidjson/schema.h>
 
 #include "control-manager.h"
 #include "control-server.h"
 #include "alsa-control-server.h"
 #include "upisnd-control-server.h"
-#include "config-schema.h"
 #include "config-loader.h"
 #include "alsa-control-server-loader.h"
 #include "upisnd-control-server-loader.h"
@@ -63,67 +61,6 @@ static int mainloop(ControlManager &mgr)
 	return 0;
 }
 
-#if 0
-static int sanitizeConfig(rapidjson::Document &doc)
-{
-	if (doc.IsObject())
-	{
-		rapidjson::Value::MemberIterator it = doc.FindMember("controls");
-		if (it != doc.MemberEnd())
-		{
-			rapidjson::Value::MemberIterator pm = it->value.FindMember("pisound-micro");
-			if (pm != it->value.MemberEnd())
-			{
-				for (auto ctrl = pm->value.MemberBegin(); ctrl != pm->value.MemberEnd(); ++ctrl)
-				{
-					auto pins = ctrl->value.FindMember("pins");
-					if (pins != ctrl->value.MemberEnd())
-					{
-					}
-					auto pin = ctrl->value.FindMember("pin");
-					if (pin != ctrl->value.MemberEnd())
-					{
-						if (pin->value.IsArray())
-						{
-							// Convert case...
-						}
-						else if (pin->value.IsString())
-						{
-							
-						}
-					}
-				}
-			}
-		}
-	}
-
-	return 0;
-}
-#endif
-
-static int verifyConfig(const rapidjson::Document &doc)
-{
-	rapidjson::Document d;
-	d.Parse(get_config_schema(), get_config_schema_length());
-	if (d.HasParseError())
-	{
-		LOG_ERROR(R"(Internal error, failed to parse built-in config schema: %s (%u))", rapidjson::GetParseError_En(d.GetParseError()), d.GetErrorOffset());
-		return -EHWPOISON;
-	}
-
-	rapidjson::SchemaDocument schemaDoc(d);
-	rapidjson::SchemaValidator validator(schemaDoc);
-
-	if (!doc.Accept(validator))
-	{
-		rapidjson::StringBuffer sb;
-		validator.GetInvalidSchemaPointer().StringifyUriFragment(sb);
-		LOG_ERROR(R"(Invalid config entry: %s)", sb.GetString());
-		return -EPROTO;
-	}
-	return 0;
-}
-
 static int loadConfig(ControlManager &mgr, const char *file)
 {
 	std::ifstream stream;
@@ -152,19 +89,6 @@ static int loadConfig(ControlManager &mgr, const char *file)
 		LOG_ERROR(R"(Parsing "%s" failed: %s (%u))", file, rapidjson::GetParseError_En(ok.Code()), ok.Offset());
 		return -EPROTO;
 	}
-
-#if 0
-	int err = sanitizeConfig(doc);
-	if (err < 0)
-	{
-		LOG_ERROR(R"(Sanitizing config "%s" failed: %d)", file, err);
-		return err;
-	}
-#endif
-
-	int err = verifyConfig(doc);
-	if (err < 0)
-		return -EINVAL;
 
 	return cfgLoader.processJson(mgr, doc);
 }

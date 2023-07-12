@@ -5,6 +5,13 @@
 
 #include <errno.h>
 
+#include <rapidjson/document.h>
+#include <rapidjson/schema.h>
+#include <rapidjson/error/en.h>
+
+extern "C" const char *get_config_schema(void);
+extern "C" size_t get_config_schema_length(void);
+
 enum MappingDir
 {
 	UNKNOWN = 0,
@@ -97,14 +104,42 @@ static int parseMapping(mapping_info_t &info, rapidjson::Value::ConstArray m)
 	return 0;
 }
 
-int ConfigLoader::processJson(ControlManager &mgr, const rapidjson::Document &config)
+int ConfigLoader::verifyJson(const char *schema, size_t len, const rapidjson::Value &object)
+{
+	rapidjson::Document d;
+	d.Parse(schema, len);
+	if (d.HasParseError())
+	{
+		LOG_ERROR(R"(Internal error, failed to parse built-in config schema: %s (%u))", rapidjson::GetParseError_En(d.GetParseError()), d.GetErrorOffset());
+		return -EHWPOISON;
+	}
+
+	rapidjson::SchemaDocument schemaDoc(d);
+	rapidjson::SchemaValidator validator(schemaDoc);
+
+	if (!object.Accept(validator))
+	{
+		rapidjson::StringBuffer sb;
+		validator.GetInvalidSchemaPointer().StringifyUriFragment(sb);
+		LOG_ERROR(R"(Invalid config entry: %s)", sb.GetString());
+		return -EPROTO;
+	}
+	return 0;
+}
+
+int ConfigLoader::processJson(ControlManager &mgr, rapidjson::Document &config)
 {
 	if (!config.IsObject())
 		return -EINVAL;
 
-	ControlRegister reg;
+	int err = verifyJson(get_config_schema(), get_config_schema_length(), config.GetObject());
+	if (err < 0)
+		return err;
 
-	int err = 0, controlIdx = 1;
+	ControlRegister reg;
+	const rapidjson::Value *value = NULL;
+
+	int controlIdx = 1;
 
 	auto item = config.FindMember("version");
 	if (item != config.MemberEnd() && item->value.GetInt() != 1)
@@ -121,6 +156,20 @@ int ConfigLoader::processJson(ControlManager &mgr, const rapidjson::Document &co
 			continue;
 		}
 
+		err = loader->second->sanitizeJson(ctrl->value.GetObject(), config.GetAllocator());
+		if (err < 0)
+		{
+			LOG_ERROR(R"(Sanitizing "%s" resulted in error %d!)", srv, err);
+			goto error;
+		}
+
+		err = loader->second->verifyJson(ctrl->value.GetObject());
+		if (err < 0)
+		{
+			LOG_ERROR(R"(Verifying "%s" resulted in error %d!)", srv, err);
+			goto error;
+		}
+
 		err = loader->second->processJson(mgr, reg, ctrl->value.GetObject());
 
 		if (err < 0)
@@ -131,7 +180,8 @@ int ConfigLoader::processJson(ControlManager &mgr, const rapidjson::Document &co
 	}
 
 	item = config.FindMember("mappings");
-	for (auto m = item->value.Begin(); m != item->value.End(); ++m)
+	value = &item->value;
+	for (auto m = value->Begin(); m != value->End(); ++m)
 	{
 		mapping_info_t info;
 		err = parseMapping(info, m->GetArray());

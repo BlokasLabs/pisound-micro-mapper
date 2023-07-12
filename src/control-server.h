@@ -3,6 +3,8 @@
 
 #include <cstddef>
 
+struct pollfd;
+
 class IControl
 {
 public:

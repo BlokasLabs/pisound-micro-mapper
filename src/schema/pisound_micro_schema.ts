@@ -2,8 +2,8 @@
 export enum ControlType {
 	ENCODER = "encoder",
 	ANALOG_IN = "analog_in",
-	GPIO_IN = "gpio_in",
-	GPIO_OUT = "gpio_out",
+	GPIO_IN = "gpio_input",
+	GPIO_OUT = "gpio_output",
 	ACTIVITY_LED = "activity_led",
 }
 
@@ -70,3 +70,7 @@ export interface GpioOutput {
 // RapidJSON uses draft-04 schema validation, which misses entries with incorrect "type" field,
 // this will be checked manually by traversing the json data before validating it.
 export type Control = Encoder | AnalogInput | GpioInput | GpioOutput;
+
+export interface Root {
+	[element: string]: Control
+}

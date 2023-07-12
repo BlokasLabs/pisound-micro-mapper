@@ -13,7 +13,9 @@ INSTALL_DATA?=$(INSTALL) -m 644
 
 CXXFLAGS=$(CFLAGS) -fno-rtti
 
--include Makefile.local
+ifneq ($(NO_LOCAL_CFG),yes)
+	-include Makefile.local
+endif
 
 ifeq ($(DEBUG),yes)
 	CFLAGS += -DDEBUG -g -O0
@@ -24,18 +26,12 @@ all: pisound-micro-mapper
 %.o: %.c %.cpp
 	$(CC) $(CFLAGS) -c $< -o $@
 
-src/config-schema.json: src/schema/config-schema.ts
-	npx ts-json-schema-generator --path $^ --no-top-ref --type ConfigRoot -o $@
+%.c: schema/%.ts
+	./gen_schema.sh $^ $@
 
-src/config-schema.c: src/config-schema.json
-	echo "#include \"config-schema.h\"" > $@
-	echo "static const char config_schema[] = {" >> $@
-	xxd -i < $^ >> $@
-	echo "};" >> $@
-	echo "const char *get_config_schema() { return config_schema; }" >> $@
-	echo "const size_t get_config_schema_length() { return sizeof(config_schema); }" >> $@
+.PRECIOUS: %.c
 
-pisound-micro-mapper: src/config-schema.o src/control-manager.o src/alsa-control-server.o src/main.o src/upisnd-control-server.o src/dtors.o src/config-loader.o src/logger.o src/alsa-control-server-loader.o src/upisnd-control-server-loader.o
+pisound-micro-mapper: src/config_schema.o src/alsa_schema.o src/pisound_micro_schema.o src/control-manager.o src/alsa-control-server.o src/main.o src/upisnd-control-server.o src/dtors.o src/config-loader.o src/logger.o src/alsa-control-server-loader.o src/upisnd-control-server-loader.o
 	$(CXX) $^ $(CFLAGS) -lpthread -lasound $(shell pkg-config --libs libpisoundmicro) -o $@
 
 schema-test: src/schema-test.cpp
@@ -49,6 +45,6 @@ install: pisound-micro-mapper
 	$(INSTALL_PROGRAM) pisound-micro-mapper $(DESTDIR)$(BINDIR)/
 
 clean:
-	rm -f *.o *.a src/*.o pisound-micro-mapper schema-test src/config-schema.c src/config-schema.json
+	rm -f *.o *.a src/*.o src/*_schema.json src/*_schema.c pisound-micro-mapper schema-test
 
 .PHONY: clean schema-check

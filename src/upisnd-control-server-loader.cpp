@@ -5,7 +5,14 @@
 
 #include "logger.h"
 
+#include <ctype.h>
 #include <errno.h>
+#include <pisound-micro.h>
+
+#include <rapidjson/document.h>
+
+extern "C" const char *get_pisound_micro_schema();
+extern "C" size_t get_pisound_micro_schema_length();
 
 const char *PisoundMicroControlServerLoader::getJsonName() const
 {
@@ -53,7 +60,76 @@ static ElementType str_to_element_type(const char *s)
 	}
 }
 
-int PisoundMicroControlServerLoader::processJson(ControlManager &mgr, IControlRegister &reg, const rapidjson::Value::ConstObject &object)
+static std::string to_lower(const char *str)
+{
+	std::string ret;
+	while (*str)
+		ret += tolower(*str++);
+	return ret;
+}
+
+static int sanitizePins(rapidjson::Value &pins, rapidjson::Document::AllocatorType &allocator)
+{
+	if (pins.IsString())
+	{
+		pins.SetString(upisnd_pin_to_str(upisnd_str_to_pin(pins.GetString())), allocator);
+		return 0;
+	}
+
+	if (pins.IsArray())
+	{
+		int i=0;
+		for (auto item = pins.Begin(); item != pins.End(); ++item, ++i)
+		{
+			if (!item->IsString())
+				return -EINVAL;
+
+			if ((i & 1) == 0)
+				item->SetString(upisnd_pin_to_str(upisnd_str_to_pin(item->GetString())), allocator);
+			else
+				item->SetString(to_lower(item->GetString()).c_str(), allocator);
+		}
+
+		return 0;
+	}
+
+	return -EINVAL;
+}
+
+int PisoundMicroControlServerLoader::sanitizeJson(rapidjson::Value &object, rapidjson::Document::AllocatorType &allocator) const
+{
+	if (!object.IsObject())
+		return -EINVAL;
+
+	for (auto ctrl = object.MemberBegin(); ctrl != object.MemberEnd(); ++ctrl)
+	{
+		auto pins = ctrl->value.FindMember("pins");
+		if (pins != ctrl->value.MemberEnd())
+		{
+			sanitizePins(pins->value, allocator);
+		}
+		pins = ctrl->value.FindMember("pin");
+		if (pins != ctrl->value.MemberEnd())
+		{
+			sanitizePins(pins->value, allocator);
+		}
+		auto type = ctrl->value.FindMember("type");
+		if (type != ctrl->value.MemberEnd())
+		{
+			// Remove unknown type entries, in order to cause schema validation failure later on.
+			if (str_to_element_type(type->value.GetString()) == UNKNOWN)
+				ctrl->value.EraseMember(type);
+		}
+	}
+	return 0;
+}
+
+int PisoundMicroControlServerLoader::verifyJson(const rapidjson::Value &object) const
+{
+	return ConfigLoader::verifyJson(get_pisound_micro_schema(), get_pisound_micro_schema_length(), object);
+}
+
+int PisoundMicroControlServerLoader::processJson(ControlManager &mgr, IControlRegister &reg, const rapidjson::Value &object)
 {
 	if (object.MemberCount() == 0)
 		return 0;

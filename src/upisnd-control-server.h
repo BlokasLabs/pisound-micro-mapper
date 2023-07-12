@@ -2,9 +2,13 @@
 #define PISOUND_MICRO_CONTROL_SERVER_H
 
 #include <map>
-#include <pisound-micro.h>
 
 #include "control-server.h"
+
+namespace upisnd
+{
+	class Element;
+}
 
 class PisoundMicroControlServer : public IControlServer
 {
@@ -24,34 +28,12 @@ public:
 	void removeControl(IControl *control);
 
 private:
-	upisnd::LibInitializer m_lib;
-
 	class Control;
 
 	std::map<int, Control>::iterator findByName(const char *name);
 
 	IListener *m_listener;
 	std::map<int, Control> m_controls;
-};
-
-class PisoundMicroControlServer::Control : public IControl
-{
-public:
-	Control(upisnd::Element &&element, upisnd::ValueFd &&fd);
-
-	virtual const char *getName() const override;
-
-	virtual int getMemberCount() const override;
-
-	virtual int getLow() const override;
-	virtual int getHigh() const override;
-
-	virtual int setValue(int value, int index) override;
-	virtual int getValue(int index) const override;
-
-private:
-	upisnd::Element m_element;
-	upisnd::ValueFd m_value;
 };
 
 #endif // PISOUND_MICRO_CONTROL_SERVER_H

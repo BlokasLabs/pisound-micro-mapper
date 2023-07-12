@@ -6,6 +6,11 @@
 
 #include <errno.h>
 
+#include <rapidjson/document.h>
+
+extern "C" const char *get_alsa_schema();
+extern "C" size_t get_alsa_schema_length();
+
 struct control_info_t
 {
 	std::string name;
@@ -37,7 +42,17 @@ const char *AlsaControlServerLoader::getJsonName() const
 	return "alsa";
 }
 
-int AlsaControlServerLoader::processJson(ControlManager &mgr, IControlRegister &reg, const rapidjson::Value::ConstObject &object)
+int AlsaControlServerLoader::sanitizeJson(rapidjson::Value &object, rapidjson::Document::AllocatorType &allocator) const
+{
+	return 0;
+}
+
+int AlsaControlServerLoader::verifyJson(const rapidjson::Value &object) const
+{
+	return ConfigLoader::verifyJson(get_alsa_schema(), get_alsa_schema_length(), object);
+}
+
+int AlsaControlServerLoader::processJson(ControlManager &mgr, IControlRegister &reg, const rapidjson::Value &object)
 {
 	int err;
 	control_info_t ctrlInfo;

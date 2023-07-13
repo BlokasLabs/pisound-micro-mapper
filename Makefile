@@ -6,6 +6,7 @@ CC?=cc
 AR?=ar
 
 CFLAGS?=-O3 -Itps/rapidjson/include
+CFLAGS+=-MMD
 
 INSTALL?=install
 INSTALL_PROGRAM?=$(INSTALL)
@@ -31,8 +32,13 @@ all: pisound-micro-mapper
 
 .PRECIOUS: %.c
 
-pisound-micro-mapper: src/config_schema.o src/alsa_schema.o src/pisound_micro_schema.o src/control-manager.o src/alsa-control-server.o src/main.o src/upisnd-control-server.o src/dtors.o src/config-loader.o src/logger.o src/alsa-control-server-loader.o src/upisnd-control-server-loader.o
+OBJ = src/config_schema.o src/alsa_schema.o src/pisound_micro_schema.o src/control-manager.o src/alsa-control-server.o src/main.o src/upisnd-control-server.o src/dtors.o src/config-loader.o src/logger.o src/alsa-control-server-loader.o src/upisnd-control-server-loader.o
+DEP = $(OBJ:%.o=%.d)
+
+pisound-micro-mapper: $(OBJ)
 	$(CXX) $^ $(CFLAGS) -lpthread -lasound $(shell pkg-config --libs libpisoundmicro) -o $@
+
+-include $(DEP)
 
 schema-test: src/schema-test.cpp
 	$(CXX) $^ $(CFLAGS) -o $@

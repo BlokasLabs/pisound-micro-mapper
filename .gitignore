@@ -4,6 +4,7 @@ pisound-micro-mapper
 
 Makefile.local
 src/*_schema.c
+*.d
 schema-test
 
 **/Debug

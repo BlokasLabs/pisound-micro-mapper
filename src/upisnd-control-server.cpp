@@ -38,6 +38,8 @@ PisoundMicroControlServer::PisoundMicroControlServer()
 
 PisoundMicroControlServer::~PisoundMicroControlServer()
 {
+	m_fdlessControls.clear();
+	m_controls.clear();
 	upisnd_uninit();
 }
 
@@ -104,19 +106,46 @@ int PisoundMicroControlServer::handleFdEvents(struct pollfd *fds, size_t nfds, s
 
 IControl *PisoundMicroControlServer::registerControl(upisnd::Element element)
 {
-	if (findByName(element.getName()) != m_controls.end())
+	if (findByName(element.getName()) != m_controls.end() || findByNameFdless(element.getName()) != m_fdlessControls.end())
 	{
 		errno = EEXIST;
 		return NULL;
 	}
 
-	upisnd::ValueFd fd = element.openValueFd(O_CLOEXEC | O_RDWR);
-	if (!fd.isValid())
-		return NULL;
+	int access_flag;
 
-	auto r = m_controls.emplace(std::piecewise_construct, std::forward_as_tuple(fd.get()), std::forward_as_tuple(std::move(element), std::move(fd)));
+	switch (element.getType())
+	{
+	case UPISND_ELEMENT_TYPE_ENCODER:
+		access_flag = O_RDWR;
+		break;
+	case UPISND_ELEMENT_TYPE_GPIO:
+		if (element.as<upisnd::Gpio>().getDirection() == UPISND_PIN_DIR_OUTPUT)
+			access_flag = O_RDWR;
+		else access_flag = O_RDONLY;
+		break;
+	case UPISND_ELEMENT_TYPE_ANALOG_INPUT:
+		access_flag = O_RDONLY;
+		break;
+	default:
+		access_flag = -1;
+		break;
+	}
 
-	return &r.first->second;
+	upisnd::ValueFd fd;
+	if (access_flag >= 0)
+	{
+		fd = element.openValueFd(O_CLOEXEC | access_flag);
+		if (!fd.isValid())
+			return NULL;
+		auto r = m_controls.emplace(std::piecewise_construct, std::forward_as_tuple(fd.get()), std::forward_as_tuple(std::move(element), std::move(fd)));
+		return &r.first->second;
+	}
+	else
+	{
+		m_fdlessControls.emplace_back(std::move(element), std::move(fd));
+		return &m_fdlessControls.back();
+	}
 }
 
 void PisoundMicroControlServer::removeControl(IControl *control)
@@ -131,7 +160,7 @@ void PisoundMicroControlServer::removeControl(IControl *control)
 	}
 }
 
-std::map<int, PisoundMicroControlServer::Control>::iterator PisoundMicroControlServer::findByName(const char *name)
+std::map<int, PisoundMicroControlServer::Control>::const_iterator PisoundMicroControlServer::findByName(const char *name) const
 {
 	if (name && *name)
 	{
@@ -144,6 +173,21 @@ std::map<int, PisoundMicroControlServer::Control>::iterator PisoundMicroControlS
 	}
 
 	return m_controls.end();
+}
+
+std::list<PisoundMicroControlServer::Control>::const_iterator PisoundMicroControlServer::findByNameFdless(const char *name) const
+{
+	if (name && *name)
+	{
+		size_t n = strlen(name)+1;
+		for (auto itr = m_fdlessControls.begin(); itr != m_fdlessControls.end(); ++itr)
+		{
+			if (strncmp(name, itr->getName(), n) == 0)
+				return itr;
+		}
+	}
+
+	return m_fdlessControls.end();
 }
 
 PisoundMicroControlServer::Control::Control(upisnd::Element &&element, upisnd::ValueFd &&fd)

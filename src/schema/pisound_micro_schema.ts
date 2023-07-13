@@ -23,6 +23,11 @@ export enum PinPull {
 	PULL_DOWN = "pull_down",
 }
 
+export enum Activity {
+	MIDI_IN = "midi_in",
+	MIDI_OUT = "midi_out",
+}
+
 export interface ControlBase
 {
 	type: ControlType;
@@ -51,12 +56,12 @@ export interface AnalogInput extends ControlValueBase {
 	pin: PinName;
 }
 
-export interface GpioInput {
+export interface GpioInput extends ControlBase {
 	type: ControlType.GPIO_IN;
 	pin: [ PinName, PinPull ];
 }
 
-export interface GpioOutput {
+export interface GpioOutput extends ControlBase {
 	type: ControlType.GPIO_OUT;
 	pin: PinName;
 
@@ -67,9 +72,15 @@ export interface GpioOutput {
 	value: boolean | number;
 }
 
+export interface ActivityLED extends ControlBase {
+	type: ControlType.ACTIVITY_LED;
+	activity: Activity;
+	pin: PinName;
+}
+
 // RapidJSON uses draft-04 schema validation, which misses entries with incorrect "type" field,
 // this will be checked manually by traversing the json data before validating it.
-export type Control = Encoder | AnalogInput | GpioInput | GpioOutput;
+export type Control = ActivityLED | Encoder | AnalogInput | GpioInput | GpioOutput;
 
 export interface Root {
 	[element: string]: Control

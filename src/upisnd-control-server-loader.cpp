@@ -101,26 +101,61 @@ int PisoundMicroControlServerLoader::sanitizeJson(rapidjson::Value &object, rapi
 	if (!object.IsObject())
 		return -EINVAL;
 
+	std::vector<std::string> to_remove;
+	int err = 0;
+
 	for (auto ctrl = object.MemberBegin(); ctrl != object.MemberEnd(); ++ctrl)
 	{
 		auto pins = ctrl->value.FindMember("pins");
 		if (pins != ctrl->value.MemberEnd())
 		{
-			sanitizePins(pins->value, allocator);
+			if ((err = sanitizePins(pins->value, allocator)) < 0)
+				return err;
 		}
 		pins = ctrl->value.FindMember("pin");
 		if (pins != ctrl->value.MemberEnd())
 		{
-			sanitizePins(pins->value, allocator);
+			if ((err = sanitizePins(pins->value, allocator)) < 0)
+				return err;
 		}
 		auto type = ctrl->value.FindMember("type");
 		if (type != ctrl->value.MemberEnd())
 		{
-			// Remove unknown type entries, in order to cause schema validation failure later on.
-			if (str_to_element_type(type->value.GetString()) == UNKNOWN)
-				ctrl->value.EraseMember(type);
+			if (type->value.IsString())
+			{
+				type->value.SetString(to_lower(type->value.GetString()).c_str(), allocator);
+			}
+			if (!type->value.IsString() || str_to_element_type(type->value.GetString()) == UNKNOWN)
+			{
+				fprintf(stderr, "Unknown control type '%s', ignoring control '%s'...\n", type->value.GetString(), ctrl->name.GetString());
+				to_remove.push_back(ctrl->name.GetString());
+			}
+			else
+			{
+				switch (str_to_element_type(type->value.GetString()))
+				{
+				case ACTIVITY_LED:
+					{
+						auto activity = ctrl->value.FindMember("activity");
+						if (activity != ctrl->value.MemberEnd() && activity->value.IsString())
+						{
+							activity->value.SetString(to_lower(activity->value.GetString()).c_str(), allocator);
+							if (upisnd_str_to_activity(activity->value.GetString()) == UPISND_ACTIVITY_INVALID)
+							{
+								fprintf(stderr, "Unknown activity '%s', ignoring control '%s'...\n", activity->value.GetString(), ctrl->name.GetString());
+								to_remove.push_back(ctrl->name.GetString());
+							}
+						}
+					}
+					break;
+				default:
+					break;
+				}
+			}
 		}
 	}
+	for (const auto &name : to_remove)
+		object.RemoveMember(name.c_str());
 	return 0;
 }
 
@@ -144,7 +179,7 @@ int PisoundMicroControlServerLoader::processJson(ControlManager &mgr, IControlRe
 		{
 		case ENCODER:
 			{
-				auto v = ctrl->value["pins"].GetArray();
+				const auto &v = ctrl->value["pins"].GetArray();
 				auto enc = upisnd::Encoder::setup(
 					ctrl->name.GetString(),
 					upisnd_str_to_pin(v[0].GetString()),
@@ -163,7 +198,7 @@ int PisoundMicroControlServerLoader::processJson(ControlManager &mgr, IControlRe
 				upisnd_element_encoder_init_default_opts(&opts);
 				parse_value_range(opts.input_range, ctrl->value, "input_low", "input_high");
 				parse_value_range(opts.value_range, ctrl->value, "value_low", "value_high");
-				auto m = ctrl->value.FindMember("mode");
+				const auto &m = ctrl->value.FindMember("mode");
 				if (m != ctrl->value.MemberEnd())
 					opts.value_mode = upisnd_str_to_value_mode(ctrl->value["mode"].GetString());
 				enc.setOpts(opts);
@@ -194,7 +229,7 @@ int PisoundMicroControlServerLoader::processJson(ControlManager &mgr, IControlRe
 			break;
 		case GPIO_INPUT:
 			{
-				auto v = ctrl->value["pin"].GetArray();
+				const auto &v = ctrl->value["pin"].GetArray();
 				auto gpio = upisnd::Gpio::setupInput(ctrl->name.GetString(), upisnd_str_to_pin(v[0].GetString()), upisnd_str_to_pin_pull(v[1].GetString()));
 				if (!gpio.isValid())
 				{
@@ -207,7 +242,7 @@ int PisoundMicroControlServerLoader::processJson(ControlManager &mgr, IControlRe
 		case GPIO_OUTPUT:
 			{
 				bool high = true;
-				auto v = ctrl->value.FindMember("value");
+				const auto &v = ctrl->value.FindMember("value");
 				if (v->value.IsBool())
 					high = v->value.GetBool();
 				else if (v->value.IsNumber())
@@ -222,8 +257,20 @@ int PisoundMicroControlServerLoader::processJson(ControlManager &mgr, IControlRe
 			}
 			break;
 		case ACTIVITY_LED:
-			LOG_INFO("Activity LED is not supported yet, skipping...");
-			continue;
+			{
+				auto led = upisnd::ActivityLED::setupActivityLED(
+					ctrl->name.GetString(),
+					upisnd_str_to_pin(ctrl->value["pin"].GetString()),
+					upisnd_str_to_activity(ctrl->value["activity"].GetString())
+					);
+				if (!led.isValid())
+				{
+					LOG_ERROR("Failed to setup activity LED '%s'", ctrl->name.GetString());
+					continue;
+				}
+				el = led;
+			}
+			break;
 		default:
 			LOG_INFO("Unknown control type '%s', skipping...", ctrl->value["type"].GetString());
 			continue;

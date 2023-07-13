@@ -57,8 +57,6 @@ int AlsaControlServerLoader::processJson(ControlManager &mgr, IControlRegister &
 	int err;
 	control_info_t ctrlInfo;
 
-	// Validate schema...
-
 	for (auto card = object.MemberBegin(); card != object.MemberEnd(); ++card)
 	{
 		auto name = card->name.GetString();

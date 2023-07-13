@@ -2,6 +2,7 @@
 #define PISOUND_MICRO_CONTROL_SERVER_H
 
 #include <map>
+#include <list>
 
 #include "control-server.h"
 
@@ -30,10 +31,12 @@ public:
 private:
 	class Control;
 
-	std::map<int, Control>::iterator findByName(const char *name);
+	std::map<int, Control>::const_iterator findByName(const char *name) const;
+	std::list<Control>::const_iterator findByNameFdless(const char *name) const;
 
 	IListener *m_listener;
 	std::map<int, Control> m_controls;
+	std::list<Control> m_fdlessControls;
 };
 
 #endif // PISOUND_MICRO_CONTROL_SERVER_H

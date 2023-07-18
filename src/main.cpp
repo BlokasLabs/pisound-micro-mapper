@@ -2,6 +2,7 @@
 #include <cstdio>
 #include <poll.h>
 #include <signal.h>
+#include <unistd.h>
 
 #include <vector>
 #include <fstream>
@@ -13,10 +14,9 @@
 
 #include "control-manager.h"
 #include "control-server.h"
-#include "alsa-control-server.h"
-#include "upisnd-control-server.h"
 #include "config-loader.h"
 #include "alsa-control-server-loader.h"
+#include "midi-control-server-loader.h"
 #include "upisnd-control-server-loader.h"
 #include "logger.h"
 
@@ -76,9 +76,11 @@ static int loadConfig(ControlManager &mgr, const char *file)
 
 	AlsaControlServerLoader alsaLoader;
 	PisoundMicroControlServerLoader upisndLoader;
+	MidiControlServerLoader midiLoader;
 
 	cfgLoader.registerControlServerLoader(alsaLoader);
 	cfgLoader.registerControlServerLoader(upisndLoader);
+	cfgLoader.registerControlServerLoader(midiLoader);
 
 	rapidjson::Document doc;
 	rapidjson::IStreamWrapper isw(stream);
@@ -110,27 +112,6 @@ int main(int argc, char **argv)
 
 	sigaction(SIGINT, &sa, NULL);
 	sigaction(SIGTERM, &sa, NULL);
-
-#if 0
-	int err;
-	upisnd::LibInitializer initializer;
-
-	if (initializer.getResult() < 0)
-	{
-		LOG_ERROR("Failed to initialize libpisoundmicro! Error %d (%m)", errno);
-		return 1;
-	}
-
-	std::shared_ptr<AlsaControlServer> alsa = std::make_shared<AlsaControlServer>();
-
-	if ((err = alsa->init("hw:micro")) < 0)
-	{
-		LOG_ERROR("Failed to init AlsaControlServer! (%d)", err);
-		return 1;
-	}
-
-	std::shared_ptr<PisoundMicroControlServer> pmcs = std::make_shared<PisoundMicroControlServer>();
-#endif
 
 	ControlManager mgr;
 

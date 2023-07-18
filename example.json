@@ -14,13 +14,13 @@
 				"input_high" : 24
 			},
 			"volume_pot": {
-				"type": "analog_in",
-				"pin": "B23"
+				"type": "gpio_input",
+				"pin": [ "B23", "pull_up" ]
 			},
 			"led": {
-				"type": "gpio_output",
-				"pin": "B08",
-				"value": false
+				"type": "activity_led",
+				"activity": "midi_in",
+				"pin": "B08"
 			}
 		},
 		"alsa": {
@@ -28,9 +28,20 @@
 				"Digital Playback Volume",
 				[ "Digital Capture Volume", { "alias": "rec_vol" } ]
 			]
+		},
+		"midi": {
+			"mano portas": {
+				"belekas": {
+					"comment": "note_on, note_off, control_change, program_change, pitch_bend, aftertouch, poly_aftertouch, song_position, song_select, tune_request, clock, start, continue, stop, active_sensing, reset",
+					"type": "control_change",
+					"channel": 1,
+					"id": 3
+				}
+			}
 		}
 	},
 	"mappings" : [
-		[ "Digital Playback Volume", "->", "volume_enc", { "index": -1 } ]
+		[ "Digital Playback Volume", "->", "volume_enc", { "index": -1 } ],
+		[ "Digital Playback Volume", "<->", "belekas" ]
 	]
 }

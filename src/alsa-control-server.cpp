@@ -60,7 +60,10 @@ size_t AlsaControlServer::getNumFds() const
 int AlsaControlServer::fillFds(struct pollfd *fds, size_t n) const
 {
 	if (n < getNumFds())
+	{
+		LOG_ERROR("Not enough space in fds array!\n");
 		return -EINVAL;
+	}
 
 	return snd_ctl_poll_descriptors(m_handle, fds, n);
 }
@@ -71,7 +74,7 @@ int AlsaControlServer::handleFdEvents(struct pollfd *fds, size_t nfds, size_t ne
 		return 0;
 
 	unsigned short *revents = (unsigned short*)alloca(sizeof(unsigned short) * nfds);
-	int err = snd_ctl_poll_descriptors_revents(m_handle, fds, getNumFds(), revents);
+	int err = snd_ctl_poll_descriptors_revents(m_handle, fds, nfds, revents);
 	if (err < 0)
 		return err;
 

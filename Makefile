@@ -32,7 +32,10 @@ all: pisound-micro-mapper
 
 .PRECIOUS: %.c
 
-OBJ = src/config_schema.o src/alsa_schema.o src/pisound_micro_schema.o src/control-manager.o src/alsa-control-server.o src/main.o src/upisnd-control-server.o src/dtors.o src/config-loader.o src/logger.o src/alsa-control-server-loader.o src/upisnd-control-server-loader.o
+OBJ = src/config_schema.o src/alsa_schema.o src/pisound_micro_schema.o src/midi_schema.o src/control-manager.o \
+	src/alsa-control-server.o src/main.o src/upisnd-control-server.o src/dtors.o src/config-loader.o \
+	src/logger.o src/alsa-control-server-loader.o src/upisnd-control-server-loader.o \
+	src/midi-control-server.o src/midi-control-server-loader.o
 DEP = $(OBJ:%.o=%.d)
 
 pisound-micro-mapper: $(OBJ)
@@ -51,6 +54,6 @@ install: pisound-micro-mapper
 	$(INSTALL_PROGRAM) pisound-micro-mapper $(DESTDIR)$(BINDIR)/
 
 clean:
-	rm -f *.o *.a src/*.o src/*_schema.json src/*_schema.c pisound-micro-mapper schema-test
+	rm -f $(OBJ) $(DEP) src/*_schema.json src/*_schema.c pisound-micro-mapper schema-test
 
 .PHONY: clean schema-check

@@ -114,12 +114,12 @@ public:
 
 	virtual int getLow() const override
 	{
-		return 0;
+		return m_type != MCT_PITCH_BEND ? 0 : -8192;
 	}
 
 	virtual int getHigh() const override
 	{
-		return 127;
+		return m_type != MCT_PITCH_BEND ? 127 : 8191;
 	}
 
 	virtual int getMemberCount() const override

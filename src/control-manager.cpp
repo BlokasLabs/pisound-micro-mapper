@@ -1,15 +1,23 @@
 #include "control-manager.h"
 
 #include "logger.h"
+#include "utils.h"
 
 #include <algorithm>
 #include <cassert>
 #include <cstdio>
 #include <poll.h>
 
-static int calc(int value, int src_low, int src_high, int dst_low, int dst_high)
+template <typename SRC>
+static IControl::value_t calc(float value, SRC src_low, SRC src_high, int dst_low, int dst_high)
 {
-	return (int)(((float)(value - src_low) / (src_high - src_low)) * (dst_high - dst_low) + dst_low);
+	return { .i = (int)(((value - src_low) / (src_high - src_low)) * (dst_high - dst_low) + dst_low) };
+}
+
+template <typename SRC>
+static IControl::value_t calc(float value, SRC src_low, SRC src_high, float dst_low, float dst_high)
+{
+	return { .f = (((value - src_low) / (src_high - src_low)) * (dst_high - dst_low) + dst_low) };
 }
 
 ControlManager::map_options_t ControlManager::defaultMapOptions()
@@ -31,10 +39,28 @@ void ControlManager::addControlServer(std::shared_ptr<IControlServer> server)
 	server->setListener(this);
 }
 
+static IControl::value_t calc(IControl::Type src_type, IControl::Type dst_type, IControl::value_t value, IControl::value_t src_low, IControl::value_t src_high, IControl::value_t dst_low, IControl::value_t dst_high)
+{
+	switch ((src_type << 1) | dst_type)
+	{
+	case 0: // INT INT
+		return calc(value.i, src_low.i, src_high.i, dst_low.i, dst_high.i);
+	case 1: // INT FLOAT
+		return calc(value.i, src_low.i, src_high.i, dst_low.f, dst_high.f);
+	case 2: // FLOAT INT
+		return calc(value.f, src_low.f, src_high.f, dst_low.i, dst_high.i);
+	case 3: // FLOAT FLOAT
+		return calc(value.f, src_low.f, src_high.f, dst_low.f, dst_high.f);
+	}
+	if (src_type == IControl::INT) return { .i = 0 };
+	return { .f = 0 };
+}
+
 void ControlManager::map(IControl &from, IControl &to, const map_options_t &opts)
 {
 	m_mappings.insert(std::make_pair(&from, mapping_t { &from, &to, opts }));
-	int v = calc(to.getValue(opts.m_index), to.getLow(), to.getHigh(), from.getLow(), from.getHigh());
+	IControl::value_t v;
+	v = calc(from.getType(), to.getType(), from.getValue(opts.m_index), from.getLow(), from.getHigh(), to.getLow(), to.getHigh());
 	from.setValue(v, opts.m_index);
 	//maskControlChangeEvent(&from, v, opts.m_index);
 }
@@ -113,10 +139,10 @@ int ControlManager::handleFdEvents(struct pollfd *fds, size_t nfds, size_t neven
 
 void ControlManager::onControlChange(IControl *from)
 {
-	LOG_DEBUG("Control %s changed! Value: %d", from->getName(), from->getValue(-1));
+	LOG_DEBUG("Control %s changed! Value: %s", from->getName(), to_std_string(from->getValue(-1), from->getType()).c_str());
 
-	int src_low = from->getLow();
-	int src_high = from->getHigh();
+	IControl::value_t src_low = from->getLow();
+	IControl::value_t src_high = from->getHigh();
 
 	auto items = m_mappings.equal_range(from);
 	for (auto itr = items.first; itr != items.second; ++itr)
@@ -124,10 +150,10 @@ void ControlManager::onControlChange(IControl *from)
 		int idx = itr->second.m_opts.m_index;
 
 		IControl *to = itr->second.m_to;
-		int dst_low = to->getLow();
-		int dst_high = to->getHigh();
+		IControl::value_t dst_low = to->getLow();
+		IControl::value_t dst_high = to->getHigh();
 
-		int fromValue = from->getValue(idx);
+		IControl::value_t fromValue = from->getValue(idx);
 
 		bool masked = isControlChangeEventMasked(from, fromValue, idx);
 		unmaskControlChangeEvent(from);
@@ -138,22 +164,29 @@ void ControlManager::onControlChange(IControl *from)
 			continue;
 		}
 
-		int toValue = calc(fromValue, src_low, src_high, dst_low, dst_high);
+		IControl::value_t toValue = calc(from->getType(), to->getType(), fromValue, src_low, src_high, dst_low, dst_high);
 		int res = to->setValue(toValue, idx);
 		maskControlChangeEvent(to, toValue, idx);
-		LOG_DEBUG("v=%d (%d, %d, %d, %d, %d) -> %d", toValue, fromValue, src_low, src_high, dst_low, dst_high, res);
+		LOG_DEBUG("v=%s (%s, %s, %s, %s, %s) -> %d",
+			to_std_string(toValue, to->getType()).c_str(),
+			to_std_string(fromValue, from->getType()).c_str(),
+			to_std_string(src_low, from->getType()).c_str(),
+			to_std_string(src_high, from->getType()).c_str(),
+			to_std_string(dst_low, to->getType()).c_str(),
+			to_std_string(dst_high, to->getType()).c_str(),
+			res);
 
 		//for (int idx=0; idx<to->getMemberCount(); ++idx)
 		//	to->setValue(v, idx);
 	}
 }
 
-void ControlManager::maskControlChangeEvent(IControl *control, int value, int index)
+void ControlManager::maskControlChangeEvent(IControl *control, IControl::value_t value, int index)
 {
 	m_maskedControlChangeEvents.push_back(masked_control_change_event_t { control, value, index });
 }
 
-bool ControlManager::isControlChangeEventMasked(IControl *control, int value, int index) const
+bool ControlManager::isControlChangeEventMasked(IControl *control, IControl::value_t value, int index) const
 {
 	return std::find(m_maskedControlChangeEvents.begin(), m_maskedControlChangeEvents.end(), masked_control_change_event_t { control, value, index }) != m_maskedControlChangeEvents.end();
 }

@@ -11,13 +11,13 @@
 extern "C" const char *get_alsa_schema();
 extern "C" size_t get_alsa_schema_length();
 
-struct control_info_t
+struct alsa_control_info_t
 {
 	std::string name;
 	std::string alias;
 };
 
-static bool parseControlInfo(control_info_t &info, const rapidjson::Value &value)
+static bool parseControlInfo(alsa_control_info_t &info, const rapidjson::Value &value)
 {
 	if (value.IsString())
 	{
@@ -55,7 +55,7 @@ int AlsaControlServerLoader::verifyJson(const rapidjson::Value &object) const
 int AlsaControlServerLoader::processJson(ControlManager &mgr, IControlRegister &reg, const rapidjson::Value &object)
 {
 	int err;
-	control_info_t ctrlInfo;
+	alsa_control_info_t ctrlInfo;
 
 	for (auto card = object.MemberBegin(); card != object.MemberEnd(); ++card)
 	{

@@ -2,23 +2,38 @@
 #define PISOUND_MICRO_MAPPER_CONTROL_SERVER_H
 
 #include <cstddef>
+#include <cstdint>
 
 struct pollfd;
 
 class IControl
 {
 public:
+	enum Type
+	{
+		INT   = 0,
+		FLOAT = 1,
+	};
+
+	union value_t
+	{
+		int32_t i;
+		float   f;
+	};
+
 	virtual ~IControl() = 0;
+
+	virtual Type getType() const = 0;
 
 	virtual const char *getName() const = 0;
 
-	virtual int getLow() const = 0;
-	virtual int getHigh() const = 0;
+	virtual value_t getLow() const = 0;
+	virtual value_t getHigh() const = 0;
 
 	virtual int getMemberCount() const = 0;
 
-	virtual int setValue(int value, int index) = 0;
-	virtual int getValue(int index) const = 0;
+	virtual int setValue(value_t value, int index) = 0;
+	virtual value_t getValue(int index) const = 0;
 };
 
 class IControlServer

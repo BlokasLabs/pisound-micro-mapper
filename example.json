@@ -32,16 +32,30 @@
 		"midi": {
 			"mano portas": {
 				"belekas": {
-					"comment": "note_on, note_off, control_change, program_change, pitch_bend, aftertouch, poly_aftertouch, song_position, song_select, tune_request, clock, start, continue, stop, active_sensing, reset",
 					"type": "control_change",
 					"channel": 1,
 					"id": 3
+				}
+			}
+		},
+		"osc": {
+			"my_osc": {
+				"listen": "osc.udp://:9000",
+				"notify": [ "osc.udp://:9001", "osc.udp://:9002" ],
+				"params" : {
+					"osc_param_1" : {
+						"path": "/belekas/belekaip",
+						"type": "f",
+						"low": 0.0,
+						"high": 511.0
+					}
 				}
 			}
 		}
 	},
 	"mappings" : [
 		[ "Digital Playback Volume", "->", "volume_enc", { "index": -1 } ],
-		[ "Digital Playback Volume", "<->", "belekas" ]
+		[ "Digital Playback Volume", "<->", "belekas" ],
+		[ "belekas", "<->", "osc_param_1" ]
 	]
 }

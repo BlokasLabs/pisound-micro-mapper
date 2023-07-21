@@ -33,13 +33,13 @@ all: pisound-micro-mapper
 .PRECIOUS: %.c
 
 OBJ = src/config_schema.o src/alsa_schema.o src/pisound_micro_schema.o src/midi_schema.o src/control-manager.o \
-	src/alsa-control-server.o src/main.o src/upisnd-control-server.o src/dtors.o src/config-loader.o \
-	src/logger.o src/alsa-control-server-loader.o src/upisnd-control-server-loader.o \
-	src/midi-control-server.o src/midi-control-server-loader.o
+	src/osc_schema.o src/alsa-control-server.o src/main.o src/upisnd-control-server.o src/dtors.o src/config-loader.o \
+	src/logger.o src/alsa-control-server-loader.o src/upisnd-control-server-loader.o src/midi-control-server.o \
+	src/midi-control-server-loader.o src/osc-control-server.o src/osc-control-server-loader.o src/utils.o
 DEP = $(OBJ:%.o=%.d)
 
 pisound-micro-mapper: $(OBJ)
-	$(CXX) $^ $(CFLAGS) -lpthread -lasound $(shell pkg-config --libs libpisoundmicro) -o $@
+	$(CXX) $^ $(CFLAGS) -lpthread -lasound -llo $(shell pkg-config --libs libpisoundmicro) -o $@
 
 -include $(DEP)
 

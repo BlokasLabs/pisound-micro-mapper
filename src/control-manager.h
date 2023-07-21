@@ -4,6 +4,7 @@
 #include <vector>
 #include <map>
 #include <memory>
+#include <cstring>
 
 #include "control-server.h"
 
@@ -30,8 +31,8 @@ public:
 	int handleFdEvents(struct pollfd *fds, size_t nfds, size_t nevents);
 
 private:
-	void maskControlChangeEvent(IControl *control, int value, int index);
-	bool isControlChangeEventMasked(IControl *control, int value, int index) const;
+	void maskControlChangeEvent(IControl *control, IControl::value_t value, int index);
+	bool isControlChangeEventMasked(IControl *control, IControl::value_t value, int index) const;
 	void unmaskControlChangeEvent(IControl *control);
 
 	virtual void onControlChange(IControl *control) override;
@@ -52,12 +53,12 @@ private:
 	struct masked_control_change_event_t
 	{
 		IControl *m_control;
-		int      m_value;
-		int      m_index;
+		IControl::value_t m_value;
+		int               m_index;
 
 		inline bool operator==(const masked_control_change_event_t &rhs) const
 		{
-			return m_control == rhs.m_control && m_value == rhs.m_value && m_index == rhs.m_index;
+			return m_control == rhs.m_control && memcmp(&m_value, &rhs.m_value, sizeof(m_value)) == 0 && m_index == rhs.m_index;
 		}
 	};
 

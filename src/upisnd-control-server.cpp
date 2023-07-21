@@ -17,13 +17,15 @@ public:
 
 	virtual const char *getName() const override;
 
+	virtual Type getType() const override;
+
 	virtual int getMemberCount() const override;
 
-	virtual int getLow() const override;
-	virtual int getHigh() const override;
+	virtual value_t getLow() const override;
+	virtual value_t getHigh() const override;
 
-	virtual int setValue(int value, int index) override;
-	virtual int getValue(int index) const override;
+	virtual int setValue(value_t value, int index) override;
+	virtual value_t getValue(int index) const override;
 
 private:
 	upisnd::Element m_element;
@@ -201,12 +203,17 @@ const char *PisoundMicroControlServer::Control::getName() const
 	return m_element.getName();
 }
 
+IControl::Type PisoundMicroControlServer::Control::getType() const
+{
+	return IControl::INT;
+}
+
 int PisoundMicroControlServer::Control::getMemberCount() const
 {
 	return 1;
 }
 
-int PisoundMicroControlServer::Control::getLow() const
+IControl::value_t PisoundMicroControlServer::Control::getLow() const
 {
 	switch (m_element.getType())
 	{
@@ -215,23 +222,23 @@ int PisoundMicroControlServer::Control::getLow() const
 	case UPISND_ELEMENT_TYPE_NONE:
 	case UPISND_ELEMENT_TYPE_GPIO:
 	case UPISND_ELEMENT_TYPE_ACTIVITY_LED:
-		return 0;
+		return { .i = 0 };
 	case UPISND_ELEMENT_TYPE_ENCODER:
 		{
 			upisnd_encoder_opts_t opts;
 			m_element.as<upisnd::Encoder>().getOpts(opts);
-			return opts.value_range.low;
+			return { .i = opts.value_range.low };
 		}
 	case UPISND_ELEMENT_TYPE_ANALOG_INPUT:
 		{
 			upisnd_analog_input_opts_t opts;
 			m_element.as<upisnd::AnalogInput>().getOpts(opts);
-			return opts.value_range.low;
+			return { .i = opts.value_range.low };
 		}
 	}
 }
 
-int PisoundMicroControlServer::Control::getHigh() const
+IControl::value_t PisoundMicroControlServer::Control::getHigh() const
 {
 	switch (m_element.getType())
 	{
@@ -239,32 +246,32 @@ int PisoundMicroControlServer::Control::getHigh() const
 	case UPISND_ELEMENT_TYPE_INVALID:
 	case UPISND_ELEMENT_TYPE_NONE:
 	case UPISND_ELEMENT_TYPE_ACTIVITY_LED:
-		return 0;
+		return { .i = 0 };
 	case UPISND_ELEMENT_TYPE_GPIO:
-		return 1;
+		return { .i = 1 };
 	case UPISND_ELEMENT_TYPE_ENCODER:
 		{
 			upisnd_encoder_opts_t opts;
 			m_element.as<upisnd::Encoder>().getOpts(opts);
-			return opts.value_range.high;
+			return { .i = opts.value_range.high };
 		}
 	case UPISND_ELEMENT_TYPE_ANALOG_INPUT:
 		{
 			upisnd_analog_input_opts_t opts;
 			m_element.as<upisnd::AnalogInput>().getOpts(opts);
-			return opts.value_range.high;
+			return { .i = opts.value_range.high };
 		}
 	}
 }
 
-int PisoundMicroControlServer::Control::setValue(int value, int index)
+int PisoundMicroControlServer::Control::setValue(IControl::value_t value, int index)
 {
 	(void)index;
-	return m_value.write(value);
+	return m_value.write(value.i);
 }
 
-int PisoundMicroControlServer::Control::getValue(int index) const
+IControl::value_t PisoundMicroControlServer::Control::getValue(int index) const
 {
 	(void)index;
-	return m_value.read();
+	return { .i = m_value.read() };
 }

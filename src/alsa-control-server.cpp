@@ -3,6 +3,39 @@
 
 #include <errno.h>
 
+struct AlsaControlServer::ctl_info_t
+{
+	unsigned int m_numid;
+	size_t m_memberCount;
+	int m_low;
+	int m_high;
+};
+
+class AlsaControlServer::Control : public IControl
+{
+public:
+	Control(snd_ctl_t *handle, snd_ctl_elem_id_t *id, const ctl_info_t &info, const char *name);
+	virtual ~Control();
+
+	virtual const char *getName() const override;
+
+	virtual Type getType() const override;
+
+	virtual int getMemberCount() const override;
+
+	virtual value_t getLow() const override;
+	virtual value_t getHigh() const override;
+
+	virtual int setValue(value_t value, int index) override;
+	virtual value_t getValue(int index) const override;
+
+private:
+	snd_ctl_t *m_handle;
+	snd_ctl_elem_id_t *m_id;
+	const ctl_info_t m_info;
+	const char *m_name;
+};
+
 int AlsaControlServer::lookupInfo(ctl_info_t &info, snd_ctl_elem_id_t *id, snd_ctl_t *handle)
 {
 	int err;
@@ -149,11 +182,6 @@ IControl *AlsaControlServer::registerControl(const char *name)
 	return &r.first->second;
 }
 
-void AlsaControlServer::removeControl(IControl *ctrl)
-{
-	// todo
-}
-
 AlsaControlServer::Control::Control(snd_ctl_t *handle, snd_ctl_elem_id_t *id, const ctl_info_t &info, const char *name)
 	:m_handle(handle)
 	,m_id(id)
@@ -181,22 +209,27 @@ const char *AlsaControlServer::Control::getName() const
 	return m_name;
 }
 
+IControl::Type AlsaControlServer::Control::getType() const
+{
+	return IControl::INT;
+}
+
 int AlsaControlServer::Control::getMemberCount() const
 {
 	return m_info.m_memberCount;
 }
 
-int AlsaControlServer::Control::getLow() const
+IControl::value_t AlsaControlServer::Control::getLow() const
 {
-	return m_info.m_low;
+	return { .i = m_info.m_low };
 }
 
-int AlsaControlServer::Control::getHigh() const
+IControl::value_t AlsaControlServer::Control::getHigh() const
 {
-	return m_info.m_high;
+	return { .i = m_info.m_high };
 }
 
-int AlsaControlServer::Control::setValue(int value, int index)
+int AlsaControlServer::Control::setValue(IControl::value_t value, int index)
 {
 	snd_ctl_elem_value_t *v;
 	snd_ctl_elem_value_alloca(&v);
@@ -205,16 +238,16 @@ int AlsaControlServer::Control::setValue(int value, int index)
 	if (index < 0 || index >= m_info.m_memberCount)
 	{
 		for (size_t i=0; i<m_info.m_memberCount; ++i)
-			snd_ctl_elem_value_set_integer(v, i, value);
+			snd_ctl_elem_value_set_integer(v, i, value.i);
 	}
-	else snd_ctl_elem_value_set_integer(v, index, value);
+	else snd_ctl_elem_value_set_integer(v, index, value.i);
 
 	snd_ctl_elem_write(m_handle, v);
 
 	return 0;
 }
 
-int AlsaControlServer::Control::getValue(int index) const
+IControl::value_t AlsaControlServer::Control::getValue(int index) const
 {
 	snd_ctl_elem_value_t *v;
 	snd_ctl_elem_value_alloca(&v);
@@ -224,5 +257,5 @@ int AlsaControlServer::Control::getValue(int index) const
 	if (index < 0 || index >= m_info.m_memberCount)
 		index = 0;
 
-	return snd_ctl_elem_value_get_integer(v, index);
+	return { .i = snd_ctl_elem_value_get_integer(v, index) };
 }

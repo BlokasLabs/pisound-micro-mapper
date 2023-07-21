@@ -112,14 +112,19 @@ public:
 		return m_name;
 	}
 
-	virtual int getLow() const override
+	virtual value_t getLow() const override
 	{
-		return m_type != MCT_PITCH_BEND ? 0 : -8192;
+		return { .i = m_type != MCT_PITCH_BEND ? 0 : -8192 };
 	}
 
-	virtual int getHigh() const override
+	virtual value_t getHigh() const override
 	{
-		return m_type != MCT_PITCH_BEND ? 127 : 8191;
+		return { .i = m_type != MCT_PITCH_BEND ? 127 : 8191 };
+	}
+
+	virtual Type getType() const override
+	{
+		return INT;
 	}
 
 	virtual int getMemberCount() const override
@@ -132,15 +137,15 @@ public:
 		m_value = value;
 	}
 
-	virtual int setValue(int value, int index) override
+	virtual int setValue(value_t value, int index) override
 	{
-		m_value = value;
-		return m_srv.sendEvent(m_type, m_channel, m_id, value);
+		m_value = value.i;
+		return m_srv.sendEvent(m_type, m_channel, m_id, value.i);
 	}
 
-	virtual int getValue(int index) const override
+	virtual value_t getValue(int index) const override
 	{
-		return m_value;
+		return { .i = m_value };
 	}
 
 private:

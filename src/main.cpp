@@ -18,6 +18,7 @@
 #include "alsa-control-server-loader.h"
 #include "midi-control-server-loader.h"
 #include "upisnd-control-server-loader.h"
+#include "osc-control-server-loader.h"
 #include "logger.h"
 
 static volatile sig_atomic_t signal_received = 0;
@@ -77,10 +78,12 @@ static int loadConfig(ControlManager &mgr, const char *file)
 	AlsaControlServerLoader alsaLoader;
 	PisoundMicroControlServerLoader upisndLoader;
 	MidiControlServerLoader midiLoader;
+	OscControlServerLoader oscLoader;
 
 	cfgLoader.registerControlServerLoader(alsaLoader);
 	cfgLoader.registerControlServerLoader(upisndLoader);
 	cfgLoader.registerControlServerLoader(midiLoader);
+	cfgLoader.registerControlServerLoader(oscLoader);
 
 	rapidjson::Document doc;
 	rapidjson::IStreamWrapper isw(stream);

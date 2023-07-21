@@ -24,17 +24,10 @@ public:
 	virtual int handleFdEvents(struct pollfd *fds, size_t nfds, size_t nevents) override;
 
 	IControl *registerControl(const char *name);
-	void removeControl(IControl *ctrl);
 
 private:
 	class Control;
-	struct ctl_info_t
-	{
-		unsigned int m_numid;
-		size_t m_memberCount;
-		int m_low;
-		int m_high;
-	};
+	struct ctl_info_t;
 
 	static int lookupInfo(ctl_info_t &info, snd_ctl_elem_id_t *id, snd_ctl_t *handle);
 
@@ -42,29 +35,6 @@ private:
 
 	IListener *m_listener;
 	snd_ctl_t *m_handle;
-};
-
-class AlsaControlServer::Control : public IControl
-{
-public:
-	Control(snd_ctl_t *handle, snd_ctl_elem_id_t *id, const ctl_info_t &info, const char *name);
-	virtual ~Control();
-
-	virtual const char *getName() const override;
-
-	virtual int getMemberCount() const override;
-
-	virtual int getLow() const override;
-	virtual int getHigh() const override;
-
-	virtual int setValue(int value, int index) override;
-	virtual int getValue(int index) const override;
-
-private:
-	snd_ctl_t *m_handle;
-	snd_ctl_elem_id_t *m_id;
-	const ctl_info_t m_info;
-	const char *m_name;
 };
 
 #endif // PISOUND_MICRO_ALSA_CONTROL_SERVER_H

@@ -11,7 +11,7 @@
 extern "C" const char *get_midi_schema();
 extern "C" size_t get_midi_schema_length();
 
-struct control_info_t
+struct midi_control_info_t
 {
 	MidiControlType type;
 	int8_t channel;
@@ -35,7 +35,7 @@ static MidiControlType str_to_mct(const char *s)
 	return MCT_UNKNOWN;
 }
 
-static bool parseControlInfo(control_info_t &info, const rapidjson::Value &value)
+static bool parseControlInfo(midi_control_info_t &info, const rapidjson::Value &value)
 {
 	if (!value.IsObject())
 		return false;
@@ -104,7 +104,7 @@ int MidiControlServerLoader::verifyJson(const rapidjson::Value &object) const
 int MidiControlServerLoader::processJson(ControlManager &mgr, IControlRegister &reg, const rapidjson::Value &object)
 {
 	int err;
-	control_info_t ctrlInfo;
+	midi_control_info_t ctrlInfo;
 
 	for (auto port = object.MemberBegin(); port != object.MemberEnd(); ++port)
 	{

@@ -117,7 +117,14 @@ int MidiControlServerLoader::processJson(ControlManager &mgr, IControlRegister &
 			return err;
 		}
 
-		for (auto ctrl = port->value.MemberBegin(); ctrl != port->value.MemberEnd(); ++ctrl)
+		auto controls = port->value.FindMember("controls");
+		if (controls == port->value.MemberEnd() || !controls->value.IsObject())
+		{
+			LOG_ERROR(R"(Failed to find "controls" object in MidiControlServer config!)");
+			return -EPROTO;
+		}
+
+		for (auto ctrl = controls->value.MemberBegin(); ctrl != controls->value.MemberEnd(); ++ctrl)
 		{
 			if (!parseControlInfo(ctrlInfo, ctrl->value))
 			{

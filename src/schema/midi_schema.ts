@@ -86,6 +86,14 @@ export type MidiControl =
 	MidiPitchBend | MidiChannelPressure | MidiPolyAftertouch | MidiStart |
 	MidiContinue | MidiStop | MidiReset;
 
+export type PortName = string;
+
 export interface midi_schema {
-	[port: string] : { [key: string]: MidiControl }
+	[port: string] : {
+		output_to?: PortName | Array<PortName>,
+		input_from?: PortName | Array<PortName>,
+		controls: {
+			[key: string]: MidiControl
+		}
+	}
 };

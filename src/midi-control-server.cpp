@@ -127,7 +127,7 @@ public:
 		return INT;
 	}
 
-	virtual int getMemberCount() const override
+	virtual int getChannelCount() const override
 	{
 		return 1;
 	}
@@ -304,7 +304,7 @@ void MidiControlServer::handleEvent(const snd_seq_event_t *ev)
 	for (auto itr = range.first; itr != range.second; ++itr)
 	{
 		itr->second.updateValue(value);
-		m_listener->onControlChange(&itr->second);
+		m_listener->onControlChange(&itr->second, 0);
 	}
 }
 

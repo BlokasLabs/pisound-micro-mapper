@@ -5,13 +5,15 @@
 			"ctrl": {
 				"pins" : [ "B05", "pull_up", "B06", "pull_up" ],
 				"type": "encoder",
-				"mode": "clamp"
+				"mode": "clamp",
+				"input_low": 3,
+				"input_high": 10
 			},
 			"volume_enc": {
 				"type" : "encoder",
 				"pins" : [ "B03", "pull_up", "B04", "pull_up" ],
 				"input_low" : 0,
-				"input_high" : 24
+				"input_high" : 23
 			},
 			"volume_pot": {
 				"type": "gpio_input",
@@ -54,8 +56,10 @@
 		}
 	},
 	"mappings" : [
-		[ "Digital Playback Volume", "->", "volume_enc", { "index": -1 } ],
+		[ "Digital Playback Volume", "<->", "volume_enc", { "index": -1 } ],
 		[ "Digital Playback Volume", "<->", "belekas" ],
-		[ "belekas", "<->", "osc_param_1" ]
+		[ "belekas", "<->", "volume_enc" ],
+		[ "belekas", "<->", "osc_param_1" ],
+		[ "volume_enc", "<->", "osc_param_1" ]
 	]
 }

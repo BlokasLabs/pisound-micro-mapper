@@ -19,7 +19,7 @@ public:
 
 	virtual Type getType() const override;
 
-	virtual int getMemberCount() const override;
+	virtual int getChannelCount() const override;
 
 	virtual value_t getLow() const override;
 	virtual value_t getHigh() const override;
@@ -95,7 +95,7 @@ int PisoundMicroControlServer::handleFdEvents(struct pollfd *fds, size_t nfds, s
 				auto item = m_controls.find(fds[i].fd);
 				if (item != m_controls.end())
 				{
-					m_listener->onControlChange(&item->second);
+					m_listener->onControlChange(&item->second, 0);
 				}
 			}
 			++j;
@@ -208,7 +208,7 @@ IControl::Type PisoundMicroControlServer::Control::getType() const
 	return IControl::INT;
 }
 
-int PisoundMicroControlServer::Control::getMemberCount() const
+int PisoundMicroControlServer::Control::getChannelCount() const
 {
 	return 1;
 }

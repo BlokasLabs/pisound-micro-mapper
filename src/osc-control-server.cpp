@@ -70,7 +70,7 @@ public:
 			c->m_value.i = clamp(argv[0]->i, c->m_low.i, c->m_high.i);
 		}
 
-		c->m_srv.m_listener->onControlChange(c);
+		c->m_srv.m_listener->onControlChange(c, 0);
 
 		return 0;
 	}
@@ -105,7 +105,7 @@ public:
 		return m_type == OSC_TYPE_FLOAT ? FLOAT : INT;
 	}
 
-	virtual int getMemberCount() const override
+	virtual int getChannelCount() const override
 	{
 		return 1;
 	}

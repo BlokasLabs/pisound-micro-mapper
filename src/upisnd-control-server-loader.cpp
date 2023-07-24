@@ -19,14 +19,22 @@ const char *PisoundMicroControlServerLoader::getJsonName() const
 	return "pisound-micro";
 }
 
-static void parse_value_range(upisnd_range_t &range, const rapidjson::Value &v, const char *low, const char *high)
+static bool parse_value_range(upisnd_range_t &range, const rapidjson::Value &v, const char *low, const char *high)
 {
+	bool found = false;
 	auto m = v.FindMember(low);
 	if (m != v.MemberEnd())
+	{
 		range.low = m->value.GetInt();
+		found = true;
+	}
 	m = v.FindMember(high);
 	if (m != v.MemberEnd())
+	{
 		range.high = m->value.GetInt();
+		found = true;
+	}
+	return found;
 }
 
 enum ElementType
@@ -196,11 +204,19 @@ int PisoundMicroControlServerLoader::processJson(ControlManager &mgr, IControlRe
 
 				upisnd_encoder_opts_t opts;
 				upisnd_element_encoder_init_default_opts(&opts);
-				parse_value_range(opts.input_range, ctrl->value, "input_low", "input_high");
-				parse_value_range(opts.value_range, ctrl->value, "value_low", "value_high");
+				bool inputRangeFound = parse_value_range(opts.input_range, ctrl->value, "input_low", "input_high");
+				bool valueRangeFound = parse_value_range(opts.value_range, ctrl->value, "value_low", "value_high");
 				const auto &m = ctrl->value.FindMember("mode");
 				if (m != ctrl->value.MemberEnd())
 					opts.value_mode = upisnd_str_to_value_mode(ctrl->value["mode"].GetString());
+
+				// If only one range is specified, use it for both.
+				if (inputRangeFound ^ valueRangeFound)
+				{
+					if (inputRangeFound) opts.value_range = opts.input_range;
+					else opts.input_range = opts.value_range;
+				}
+
 				enc.setOpts(opts);
 				el = enc;
 			}
@@ -220,8 +236,16 @@ int PisoundMicroControlServerLoader::processJson(ControlManager &mgr, IControlRe
 
 				upisnd_analog_input_opts_t opts;
 				upisnd_element_analog_input_init_default_opts(&opts);
-				parse_value_range(opts.input_range, ctrl->value, "input_low", "input_high");
-				parse_value_range(opts.value_range, ctrl->value, "value_low", "value_high");
+				bool inputRangeFound = parse_value_range(opts.input_range, ctrl->value, "input_low", "input_high");
+				bool valueRangeFound = parse_value_range(opts.value_range, ctrl->value, "value_low", "value_high");
+
+				// If only one range is specified, use it for both.
+				if (inputRangeFound ^ valueRangeFound)
+				{
+					if (inputRangeFound) opts.value_range = opts.input_range;
+					else opts.input_range = opts.value_range;
+				}
+
 				in.setOpts(opts);
 
 				el = in;

@@ -30,10 +30,10 @@ public:
 	virtual value_t getLow() const = 0;
 	virtual value_t getHigh() const = 0;
 
-	virtual int getMemberCount() const = 0;
+	virtual int getChannelCount() const = 0;
 
-	virtual int setValue(value_t value, int index) = 0;
-	virtual value_t getValue(int index) const = 0;
+	virtual int setValue(value_t value, int ch) = 0;
+	virtual value_t getValue(int ch) const = 0;
 };
 
 class IControlServer
@@ -42,7 +42,7 @@ public:
 	class IListener
 	{
 	public:
-		virtual void onControlChange(IControl *control) = 0;
+		virtual void onControlChange(IControl *control, int ch) = 0;
 	};
 
 	virtual ~IControlServer() = 0;

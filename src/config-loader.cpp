@@ -76,10 +76,15 @@ static MappingDir parseDir(const std::string &s)
 static int parseMappingOptions(ControlManager::map_options_t &opts, rapidjson::Value::ConstObject o)
 {
 	opts = ControlManager::defaultMapOptions();
-	auto idx = o.FindMember("index");
-	if (idx != o.MemberEnd())
+	auto ch = o.FindMember("src_ch");
+	if (ch != o.MemberEnd())
 	{
-		opts.m_index = idx->value.GetInt();
+		opts.m_src_ch = ch->value.GetInt();
+	}
+	ch = o.FindMember("dst_ch");
+	if (ch != o.MemberEnd())
+	{
+		opts.m_dst_ch = ch->value.GetInt();
 	}
 	return 0;
 }
@@ -205,7 +210,10 @@ int ConfigLoader::processJson(ControlManager &mgr, rapidjson::Document &config)
 		if (info.dir & A_TO_B)
 			mgr.map(*c[0], *c[1], info.opts);
 		if (info.dir & B_TO_A)
+		{
+			std::swap(info.opts.m_src_ch, info.opts.m_dst_ch);
 			mgr.map(*c[1], *c[0], info.opts);
+		}
 
 		++controlIdx;
 	}

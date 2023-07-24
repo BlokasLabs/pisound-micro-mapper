@@ -6,7 +6,7 @@
 struct AlsaControlServer::ctl_info_t
 {
 	unsigned int m_numid;
-	size_t m_memberCount;
+	size_t m_channelCount;
 	int m_low;
 	int m_high;
 };
@@ -21,13 +21,13 @@ public:
 
 	virtual Type getType() const override;
 
-	virtual int getMemberCount() const override;
+	virtual int getChannelCount() const override;
 
 	virtual value_t getLow() const override;
 	virtual value_t getHigh() const override;
 
-	virtual int setValue(value_t value, int index) override;
-	virtual value_t getValue(int index) const override;
+	virtual int setValue(value_t value, int ch) override;
+	virtual value_t getValue(int ch) const override;
 
 private:
 	snd_ctl_t *m_handle;
@@ -48,7 +48,7 @@ int AlsaControlServer::lookupInfo(ctl_info_t &info, snd_ctl_elem_id_t *id, snd_c
 
 	snd_ctl_elem_info_get_id(i, id);
 	info.m_numid = snd_ctl_elem_id_get_numid(id);
-	info.m_memberCount = snd_ctl_elem_info_get_count(i);
+	info.m_channelCount = snd_ctl_elem_info_get_count(i);
 	info.m_low = snd_ctl_elem_info_get_min(i);
 	info.m_high = snd_ctl_elem_info_get_max(i);
 
@@ -137,7 +137,8 @@ int AlsaControlServer::handleFdEvents(struct pollfd *fds, size_t nfds, size_t ne
 						}
 						else if (mask & SND_CTL_EVENT_MASK_VALUE)
 						{
-							m_listener->onControlChange(&item->second);
+							unsigned int idx = snd_ctl_event_elem_get_index(event);
+							m_listener->onControlChange(&item->second, (int)idx);
 						}
 					}
 				}
@@ -214,9 +215,9 @@ IControl::Type AlsaControlServer::Control::getType() const
 	return IControl::INT;
 }
 
-int AlsaControlServer::Control::getMemberCount() const
+int AlsaControlServer::Control::getChannelCount() const
 {
-	return m_info.m_memberCount;
+	return m_info.m_channelCount;
 }
 
 IControl::value_t AlsaControlServer::Control::getLow() const
@@ -229,33 +230,45 @@ IControl::value_t AlsaControlServer::Control::getHigh() const
 	return { .i = m_info.m_high };
 }
 
-int AlsaControlServer::Control::setValue(IControl::value_t value, int index)
+int AlsaControlServer::Control::setValue(IControl::value_t value, int ch)
 {
 	snd_ctl_elem_value_t *v;
 	snd_ctl_elem_value_alloca(&v);
 	snd_ctl_elem_value_set_id(v, m_id);
 
-	if (index < 0 || index >= m_info.m_memberCount)
+	if (ch < 0 || ch >= m_info.m_channelCount)
 	{
-		for (size_t i=0; i<m_info.m_memberCount; ++i)
+		for (size_t i=0; i<m_info.m_channelCount; ++i)
 			snd_ctl_elem_value_set_integer(v, i, value.i);
 	}
-	else snd_ctl_elem_value_set_integer(v, index, value.i);
+	else
+	{
+		snd_ctl_elem_value_t *rv;
+		snd_ctl_elem_value_alloca(&rv);
+		snd_ctl_elem_value_set_id(rv, m_id);
+		snd_ctl_elem_read(m_handle, rv);
+
+		for (size_t i=0; i<m_info.m_channelCount; ++i)
+		{
+			if (i == ch) snd_ctl_elem_value_set_integer(v, ch, value.i);
+			else snd_ctl_elem_value_set_integer(v, i, snd_ctl_elem_value_get_integer(rv, i));
+		}
+	}
 
 	snd_ctl_elem_write(m_handle, v);
 
 	return 0;
 }
 
-IControl::value_t AlsaControlServer::Control::getValue(int index) const
+IControl::value_t AlsaControlServer::Control::getValue(int ch) const
 {
 	snd_ctl_elem_value_t *v;
 	snd_ctl_elem_value_alloca(&v);
 	snd_ctl_elem_value_set_id(v, m_id);
 	snd_ctl_elem_read(m_handle, v);
 
-	if (index < 0 || index >= m_info.m_memberCount)
-		index = 0;
+	if (ch < 0 || ch >= m_info.m_channelCount)
+		ch = 0;
 
-	return { .i = snd_ctl_elem_value_get_integer(v, index) };
+	return { .i = snd_ctl_elem_value_get_integer(v, ch) };
 }

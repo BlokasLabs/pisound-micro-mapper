@@ -22,13 +22,18 @@ ifeq ($(DEBUG),yes)
 	CFLAGS += -DDEBUG -g -O0
 endif
 
-all: pisound-micro-mapper
+all: pisound-micro-mapper pisound-micro-schema.json
 
 %.o: %.c %.cpp
 	$(CC) $(CFLAGS) -c $< -o $@
 
 %.c: schema/%.ts
 	./gen_schema.sh $^ $@
+
+SCHEMA_FILES = $(wildcard src/schema/*.ts)
+
+pisound-micro-schema.json: $(SCHEMA_FILES)
+	npx ts-json-schema-generator --additional-properties true --path $< --no-top-ref --type SchemaRoot -o $@
 
 .PRECIOUS: %.c
 

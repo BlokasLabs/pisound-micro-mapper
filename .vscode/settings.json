@@ -1,0 +1,10 @@
+{
+	"json.schemas": [
+		{
+			"fileMatch": [
+				"example.json"
+			],
+			"url": "./pisound-micro-schema.json"
+		}
+	]
+}

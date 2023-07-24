@@ -1,5 +1,5 @@
 export type AlsaControl = string | [ string, { alias?: string }? ];
 
-export interface Root {
+export interface alsa_schema {
 	[card: string] : Array<AlsaControl>
 };

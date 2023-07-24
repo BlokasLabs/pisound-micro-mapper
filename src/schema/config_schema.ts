@@ -1,6 +1,6 @@
 import { Mapping } from "./mappings";
 
-export interface Root {
+export interface config_schema {
 	version: number;
 	controls: object;
 	mappings?: Array<Mapping>;

@@ -86,6 +86,6 @@ export type MidiControl =
 	MidiPitchBend | MidiChannelPressure | MidiPolyAftertouch | MidiStart |
 	MidiContinue | MidiStop | MidiReset;
 
-export interface Root {
+export interface midi_schema {
 	[port: string] : { [key: string]: MidiControl }
 };

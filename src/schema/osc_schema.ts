@@ -12,7 +12,7 @@ export interface Param {
 
 export type Address = string;
 
-export interface Root {
+export interface osc_schema {
 	[ name: string ]: {
 		listen?: Address;
 		notify?: Address | Array<Address>;

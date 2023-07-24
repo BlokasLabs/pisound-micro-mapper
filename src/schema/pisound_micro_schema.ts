@@ -82,6 +82,6 @@ export interface ActivityLED extends ControlBase {
 // this will be checked manually by traversing the json data before validating it.
 export type Control = ActivityLED | Encoder | AnalogInput | GpioInput | GpioOutput;
 
-export interface Root {
+export interface pisound_micro_schema {
 	[element: string]: Control
 }

@@ -6,6 +6,7 @@ Makefile.local
 src/*_schema.c
 *.d
 schema-test
+pisound-micro-schema.json
 
 **/Debug
 **/Release

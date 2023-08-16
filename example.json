@@ -6,21 +6,21 @@
 				"pins" : [ "B05", "pull_up", "B06", "pull_up" ],
 				"type": "encoder",
 				"mode": "clamp",
-				"input_low": 3,
-				"input_high": 10
+				"input_min": 3,
+				"input_max": 10
 			},
 			"volume_enc": {
 				"type" : "encoder",
 				"pins" : [ "B03", "pull_up", "B04", "pull_up" ],
-				"input_low" : 0,
-				"input_high" : 23
+				"input_min" : 0,
+				"input_max" : 23
 			},
 			"volume_pot": {
 				"type": "gpio_input",
 				"pin": [ "B23", "pull_up" ]
 			},
 			"led": {
-				"type": "activity_led",
+				"type": "activity",
 				"activity": "midi_in",
 				"pin": "B08"
 			}

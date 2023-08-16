@@ -88,7 +88,7 @@ export type MidiControl =
 
 export type PortName = string;
 
-export interface midi_schema {
+export interface midi_schema_v1 {
 	[port: string] : {
 		output_to?: PortName | Array<PortName>,
 		input_from?: PortName | Array<PortName>,
@@ -97,3 +97,5 @@ export interface midi_schema {
 		}
 	}
 };
+
+export type midi_schema = midi_schema_v1;

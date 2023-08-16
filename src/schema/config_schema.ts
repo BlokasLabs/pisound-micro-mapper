@@ -1,7 +1,14 @@
-import { Mapping } from "./mappings";
+import { mapping_v1 } from "./mappings";
 
-export interface config_schema {
+export interface schema_base {
+	$schema: "https://blokas.io/json/pisound-micro-schema.json";
 	version: number;
-	controls: object;
-	mappings?: Array<Mapping>;
 }
+
+export interface config_schema_v1 extends schema_base {
+	version: 1;
+	controls: object;
+	mappings?: Array<mapping_v1>;
+}
+
+export type config_schema = config_schema_v1;

@@ -3,4 +3,4 @@ export enum MappingDirection {
 	B_TO_A = "<-",
 	BOTH = "<->",
 };
-export type Mapping = [string, MappingDirection, string, object? ];
+export type mapping_v1 = [string, MappingDirection, string, object? ];

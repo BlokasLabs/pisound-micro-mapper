@@ -44,7 +44,7 @@ enum ElementType
 	ANALOG_INPUT,
 	GPIO_INPUT,
 	GPIO_OUTPUT,
-	ACTIVITY_LED,
+	ACTIVITY,
 };
 
 static ElementType str_to_element_type(const char *s)
@@ -61,8 +61,8 @@ static ElementType str_to_element_type(const char *s)
 		return ENCODER;
 	case UPISND_ELEMENT_TYPE_ANALOG_INPUT:
 		return ANALOG_INPUT;
-	case UPISND_ELEMENT_TYPE_ACTIVITY_LED:
-		return ACTIVITY_LED;
+	case UPISND_ELEMENT_TYPE_ACTIVITY:
+		return ACTIVITY;
 	default:
 		return UNKNOWN;
 	}
@@ -142,7 +142,7 @@ int PisoundMicroControlServerLoader::sanitizeJson(rapidjson::Value &object, rapi
 			{
 				switch (str_to_element_type(type->value.GetString()))
 				{
-				case ACTIVITY_LED:
+				case ACTIVITY:
 					{
 						auto activity = ctrl->value.FindMember("activity");
 						if (activity != ctrl->value.MemberEnd() && activity->value.IsString())
@@ -204,7 +204,7 @@ int PisoundMicroControlServerLoader::processJson(ControlManager &mgr, IControlRe
 
 				upisnd_encoder_opts_t opts;
 				upisnd_element_encoder_init_default_opts(&opts);
-				bool inputRangeFound = parse_value_range(opts.input_range, ctrl->value, "input_low", "input_high");
+				bool inputRangeFound = parse_value_range(opts.input_range, ctrl->value, "input_min", "input_max");
 				bool valueRangeFound = parse_value_range(opts.value_range, ctrl->value, "value_low", "value_high");
 				const auto &m = ctrl->value.FindMember("mode");
 				if (m != ctrl->value.MemberEnd())
@@ -236,7 +236,7 @@ int PisoundMicroControlServerLoader::processJson(ControlManager &mgr, IControlRe
 
 				upisnd_analog_input_opts_t opts;
 				upisnd_element_analog_input_init_default_opts(&opts);
-				bool inputRangeFound = parse_value_range(opts.input_range, ctrl->value, "input_low", "input_high");
+				bool inputRangeFound = parse_value_range(opts.input_range, ctrl->value, "input_min", "input_max");
 				bool valueRangeFound = parse_value_range(opts.value_range, ctrl->value, "value_low", "value_high");
 
 				// If only one range is specified, use it for both.
@@ -280,19 +280,19 @@ int PisoundMicroControlServerLoader::processJson(ControlManager &mgr, IControlRe
 				el = gpio;
 			}
 			break;
-		case ACTIVITY_LED:
+		case ACTIVITY:
 			{
-				auto led = upisnd::ActivityLED::setupActivityLED(
+				auto activity = upisnd::Activity::setupActivity(
 					ctrl->name.GetString(),
 					upisnd_str_to_pin(ctrl->value["pin"].GetString()),
 					upisnd_str_to_activity(ctrl->value["activity"].GetString())
 					);
-				if (!led.isValid())
+				if (!activity.isValid())
 				{
-					LOG_ERROR("Failed to setup activity LED '%s'", ctrl->name.GetString());
+					LOG_ERROR("Failed to setup Activity '%s'", ctrl->name.GetString());
 					continue;
 				}
-				el = led;
+				el = activity;
 			}
 			break;
 		default:

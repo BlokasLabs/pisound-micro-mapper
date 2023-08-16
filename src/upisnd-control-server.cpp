@@ -221,7 +221,7 @@ IControl::value_t PisoundMicroControlServer::Control::getLow() const
 	case UPISND_ELEMENT_TYPE_INVALID:
 	case UPISND_ELEMENT_TYPE_NONE:
 	case UPISND_ELEMENT_TYPE_GPIO:
-	case UPISND_ELEMENT_TYPE_ACTIVITY_LED:
+	case UPISND_ELEMENT_TYPE_ACTIVITY:
 		return { .i = 0 };
 	case UPISND_ELEMENT_TYPE_ENCODER:
 		{
@@ -245,7 +245,7 @@ IControl::value_t PisoundMicroControlServer::Control::getHigh() const
 	default:
 	case UPISND_ELEMENT_TYPE_INVALID:
 	case UPISND_ELEMENT_TYPE_NONE:
-	case UPISND_ELEMENT_TYPE_ACTIVITY_LED:
+	case UPISND_ELEMENT_TYPE_ACTIVITY:
 		return { .i = 0 };
 	case UPISND_ELEMENT_TYPE_GPIO:
 		return { .i = 1 };

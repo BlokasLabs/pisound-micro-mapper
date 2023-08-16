@@ -33,7 +33,7 @@ all: pisound-micro-mapper pisound-micro-schema.json
 SCHEMA_FILES = $(wildcard src/schema/*.ts)
 
 pisound-micro-schema.json: $(SCHEMA_FILES)
-	npx ts-json-schema-generator --additional-properties true --path $< --no-top-ref --type SchemaRoot -o $@
+	npx ts-json-schema-generator --minify --strict-tuples --path $< --no-top-ref --type pisound_micro_root -o $@
 
 .PRECIOUS: %.c
 
@@ -59,6 +59,6 @@ install: pisound-micro-mapper
 	$(INSTALL_PROGRAM) pisound-micro-mapper $(DESTDIR)$(BINDIR)/
 
 clean:
-	rm -f $(OBJ) $(DEP) src/*_schema.json src/*_schema.c pisound-micro-mapper schema-test
+	rm -f $(OBJ) $(DEP) src/*_schema.json src/*_schema.c pisound-micro-mapper pisound-micro-schema.json schema-test
 
 .PHONY: clean schema-check

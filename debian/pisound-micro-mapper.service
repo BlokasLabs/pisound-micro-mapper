@@ -1,0 +1,14 @@
+[Unit]
+Description=Pisound Micro Mapper daemon.
+After=sound.target
+ConditionPathIsDirectory=/sys/pisound-micro
+
+[Service]
+ExecStart=/usr/bin/pisound-micro-mapper
+Restart=always
+RestartSec=5
+User=pisound-micro-mapper
+Group=pisound-micro-mapper
+
+[Install]
+WantedBy=multi-user.target

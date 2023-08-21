@@ -9,6 +9,6 @@ Homepage: https://blokas.io/
 Package: pisound-micro-mapper
 Architecture: any
 Multi-Arch: foreign
-Depends: ${misc:Depends}, ${shlibs:Depends}
+Depends: pisound-micro-common (>= 1.0.0-1), ${misc:Depends}, ${shlibs:Depends}
 Description: Pisound Micro Mapper - manages mappings of Pisound Micro I/O and other subsystems
   like ALSA mixer, ALSA MIDI, OSC, etc.

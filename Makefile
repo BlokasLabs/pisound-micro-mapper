@@ -7,7 +7,7 @@ BINDIR?=$(PREFIX)/bin
 CC?=cc
 AR?=ar
 
-CFLAGS?=-O3 -Itps/rapidjson/include
+CFLAGS=-Itps/rapidjson/include
 CFLAGS+=-MMD
 
 INSTALL?=install
@@ -22,6 +22,8 @@ endif
 
 ifeq ($(DEBUG),yes)
 	CFLAGS += -DDEBUG -g -O0
+else
+	CFLAGS += -O3
 endif
 
 all: pisound-micro-mapper pisound-micro-schema.json

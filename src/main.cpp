@@ -115,6 +115,8 @@ R"(pisound-micro-mapper usage:
 	--help                      Print this help
 	--version                   Print version
 
+	See https://blokas.io/pisound-micro/docs/pisound-micro-mapper/ for more information.
+
 )");
 	printVersion();
 }

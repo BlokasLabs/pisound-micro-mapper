@@ -1,0 +1,15 @@
+adduser --no-create-home --system --group pisound-micro-mapper
+adduser pisound-micro-mapper gpio
+adduser pisound-micro-mapper audio
+
+USER=${SUDO_USER:-$(who -m | awk '{ print $1 }')}
+
+for i in $USER patch pi; do
+	if id -u "$i" > /dev/null 2>&1; then
+		if ! groups $i | grep -q '\bpisound-micro-mapper\b'; then
+			adduser $i pisound-micro-mapper
+		fi
+	fi
+done
+
+#DEBHELPER#

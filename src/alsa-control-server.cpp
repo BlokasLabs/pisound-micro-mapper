@@ -243,16 +243,8 @@ int AlsaControlServer::Control::setValue(IControl::value_t value, int ch)
 	}
 	else
 	{
-		snd_ctl_elem_value_t *rv;
-		snd_ctl_elem_value_alloca(&rv);
-		snd_ctl_elem_value_set_id(rv, m_id);
-		snd_ctl_elem_read(m_handle, rv);
-
-		for (size_t i=0; i<m_info.m_channelCount; ++i)
-		{
-			if (i == ch) snd_ctl_elem_value_set_integer(v, ch, value.i);
-			else snd_ctl_elem_value_set_integer(v, i, snd_ctl_elem_value_get_integer(rv, i));
-		}
+		snd_ctl_elem_read(m_handle, v);
+		snd_ctl_elem_value_set_integer(v, ch, value.i);
 	}
 
 	snd_ctl_elem_write(m_handle, v);

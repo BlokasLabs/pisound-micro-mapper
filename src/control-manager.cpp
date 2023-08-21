@@ -83,10 +83,10 @@ void ControlManager::map(IControl &src, IControl &dst, const map_options_t &opts
 			{
 				int src_ch = i < src.getChannelCount() ? i : 0;
 				int dst_ch = i < dst.getChannelCount() ? i : 0;
-				LOG_DEBUG("1 Mapping %s[%d] -> %s[%d]", src.getName(), src_ch, dst.getName(), dst_ch);
 				e.insert(mapping_t { &src, &dst, src_ch, dst_ch });
 				v = calc(src.getType(), dst.getType(), src.getValue(src_ch), src.getLow(), src.getHigh(), dst.getLow(), dst.getHigh());
-				src.setValue(v, src_ch);
+				dst.setValue(v, dst_ch);
+				LOG_DEBUG("1 Mapping %s[%d] -> %s[%d], %s -> %s", src.getName(), src_ch, dst.getName(), dst_ch, to_std_string(src.getValue(src_ch), src.getType()).c_str(), to_std_string(dst.getValue(dst_ch), dst.getType()).c_str());
 			}
 		}
 		else
@@ -94,10 +94,10 @@ void ControlManager::map(IControl &src, IControl &dst, const map_options_t &opts
 			for (int i=0; i<src.getChannelCount(); ++i)
 			{
 				int src_ch = i;
-				LOG_DEBUG("2 Mapping %s[%d] -> %s[%d]", src.getName(), src_ch, dst.getName(), opts.m_dst_ch);
 				e.insert(mapping_t { &src, &dst, i, opts.m_dst_ch });
 				v = calc(src.getType(), dst.getType(), src.getValue(src_ch), src.getLow(), src.getHigh(), dst.getLow(), dst.getHigh());
-				src.setValue(v, src_ch);
+				dst.setValue(v, opts.m_dst_ch);
+				LOG_DEBUG("2 Mapping %s[%d] -> %s[%d], %s -> %s", src.getName(), src_ch, dst.getName(), opts.m_dst_ch, to_std_string(src.getValue(src_ch), src.getType()).c_str(), to_std_string(dst.getValue(opts.m_dst_ch), dst.getType()).c_str());
 			}
 		}
 	}
@@ -108,18 +108,18 @@ void ControlManager::map(IControl &src, IControl &dst, const map_options_t &opts
 		{
 			for (int i=0; i<dst.getChannelCount(); ++i)
 			{
-				LOG_DEBUG("3 Mapping %s[%d] -> %s[%d]", src.getName(), src_ch, dst.getName(), i);
 				e.insert(mapping_t { &src, &dst, src_ch, i });
 				v = calc(src.getType(), dst.getType(), src.getValue(src_ch), src.getLow(), src.getHigh(), dst.getLow(), dst.getHigh());
-				src.setValue(v, src_ch);
+				dst.setValue(v, opts.m_dst_ch);
+				LOG_DEBUG("3 Mapping %s[%d] -> %s[%d], %s -> %s", src.getName(), src_ch, dst.getName(), opts.m_dst_ch, to_std_string(src.getValue(src_ch), src.getType()).c_str(), to_std_string(dst.getValue(opts.m_dst_ch), dst.getType()).c_str());
 			}
 		}
 		else
 		{
-			LOG_DEBUG("4 Mapping %s[%d] -> %s[%d]", src.getName(), src_ch, dst.getName(), opts.m_dst_ch);
 			e.insert(mapping_t { &src, &dst, src_ch, opts.m_dst_ch });
 			v = calc(src.getType(), dst.getType(), src.getValue(src_ch), src.getLow(), src.getHigh(), dst.getLow(), dst.getHigh());
-			src.setValue(v, src_ch);
+			dst.setValue(v, opts.m_dst_ch);
+			LOG_DEBUG("4 Mapping %s[%d] -> %s[%d], %s -> %s", src.getName(), src_ch, dst.getName(), opts.m_dst_ch, to_std_string(src.getValue(src_ch), src.getType()).c_str(), to_std_string(dst.getValue(opts.m_dst_ch), dst.getType()).c_str());
 		}
 	}
 	//maskControlChangeEvent(&from, v, opts.m_index);

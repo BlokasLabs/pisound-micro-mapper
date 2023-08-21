@@ -1,5 +1,7 @@
 PREFIX?=/usr/local
 
+VERSION=1.0.0
+
 BINDIR?=$(PREFIX)/bin
 
 CC?=cc
@@ -59,6 +61,11 @@ install: pisound-micro-mapper
 	$(INSTALL_PROGRAM) pisound-micro-mapper $(DESTDIR)$(BINDIR)/
 
 clean:
-	rm -f $(OBJ) $(DEP) src/*_schema.json src/*_schema.c pisound-micro-mapper pisound-micro-schema.json schema-test
+	rm -f $(OBJ) $(DEP) src/*_schema.json src/*_schema.c pisound-micro-mapper pisound-micro-schema.json schema-test schema-test.d
+
+dist:
+	git archive --prefix "pisound-micro-mapper-$(VERSION)/" -o "pisound-micro-mapper-$(VERSION).tar" HEAD
+	git submodule foreach --recursive "git archive --prefix=pisound-micro-mapper-$(VERSION)/\$$path/ --output=\$$sha1.tar HEAD && tar --concatenate --file=$(shell pwd)/pisound-micro-mapper-$(VERSION).tar \$$sha1.tar && rm \$$sha1.tar"
+	gzip "pisound-micro-mapper-$(VERSION).tar"
 
 .PHONY: clean schema-check

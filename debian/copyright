@@ -1,0 +1,515 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: pisound-micro-mapper
+Upstream-Contact: <preferred name and address to reach the upstream project>
+Source: <url://example.com>
+#
+# Please double check copyright with the licensecheck(1) command.
+
+Files:     .gitignore
+           .gitmodules
+           .vscode/c_cpp_properties.json
+           .vscode/launch.json
+           .vscode/settings.json
+           Makefile
+           example.json
+           gen_schema.sh
+           src/alsa-control-server-loader.cpp
+           src/alsa-control-server-loader.h
+           src/alsa-control-server.cpp
+           src/alsa-control-server.h
+           src/config-loader.cpp
+           src/config-loader.h
+           src/control-manager.cpp
+           src/control-manager.h
+           src/control-server.h
+           src/dtors.cpp
+           src/logger.cpp
+           src/logger.h
+           src/main.cpp
+           src/midi-control-server-loader.cpp
+           src/midi-control-server-loader.h
+           src/midi-control-server.cpp
+           src/midi-control-server.h
+           src/osc-control-server-loader.cpp
+           src/osc-control-server-loader.h
+           src/osc-control-server.cpp
+           src/osc-control-server.h
+           src/schema-test.cpp
+           src/schema/all_schema.ts
+           src/schema/alsa_schema.ts
+           src/schema/config_schema.ts
+           src/schema/mappings.ts
+           src/schema/midi_schema.ts
+           src/schema/osc_schema.ts
+           src/schema/pisound_micro_schema.ts
+           src/upisnd-control-server-loader.cpp
+           src/upisnd-control-server-loader.h
+           src/upisnd-control-server.cpp
+           src/upisnd-control-server.h
+           src/utils.cpp
+           src/utils.h
+           tps/rapidjson/.git
+           tps/rapidjson/.gitattributes
+           tps/rapidjson/.gitignore
+           tps/rapidjson/.gitmodules
+           tps/rapidjson/.travis.yml
+           tps/rapidjson/CHANGELOG.md
+           tps/rapidjson/CMakeLists.txt
+           tps/rapidjson/CMakeModules/FindGTestSrc.cmake
+           tps/rapidjson/RapidJSON.pc.in
+           tps/rapidjson/RapidJSONConfig.cmake.in
+           tps/rapidjson/RapidJSONConfigVersion.cmake.in
+           tps/rapidjson/appveyor.yml
+           tps/rapidjson/bin/data/abcde.txt
+           tps/rapidjson/bin/data/glossary.json
+           tps/rapidjson/bin/data/menu.json
+           tps/rapidjson/bin/data/readme.txt
+           tps/rapidjson/bin/data/sample.json
+           tps/rapidjson/bin/data/webapp.json
+           tps/rapidjson/bin/data/widget.json
+           tps/rapidjson/bin/draft-04/schema
+           tps/rapidjson/bin/encodings/utf16be.json
+           tps/rapidjson/bin/encodings/utf16bebom.json
+           tps/rapidjson/bin/encodings/utf16le.json
+           tps/rapidjson/bin/encodings/utf16lebom.json
+           tps/rapidjson/bin/encodings/utf32be.json
+           tps/rapidjson/bin/encodings/utf32bebom.json
+           tps/rapidjson/bin/encodings/utf32le.json
+           tps/rapidjson/bin/encodings/utf32lebom.json
+           tps/rapidjson/bin/encodings/utf8.json
+           tps/rapidjson/bin/encodings/utf8bom.json
+           tps/rapidjson/bin/jsonchecker/fail1.json
+           tps/rapidjson/bin/jsonchecker/fail10.json
+           tps/rapidjson/bin/jsonchecker/fail11.json
+           tps/rapidjson/bin/jsonchecker/fail12.json
+           tps/rapidjson/bin/jsonchecker/fail13.json
+           tps/rapidjson/bin/jsonchecker/fail14.json
+           tps/rapidjson/bin/jsonchecker/fail15.json
+           tps/rapidjson/bin/jsonchecker/fail16.json
+           tps/rapidjson/bin/jsonchecker/fail17.json
+           tps/rapidjson/bin/jsonchecker/fail18.json
+           tps/rapidjson/bin/jsonchecker/fail19.json
+           tps/rapidjson/bin/jsonchecker/fail2.json
+           tps/rapidjson/bin/jsonchecker/fail20.json
+           tps/rapidjson/bin/jsonchecker/fail21.json
+           tps/rapidjson/bin/jsonchecker/fail22.json
+           tps/rapidjson/bin/jsonchecker/fail23.json
+           tps/rapidjson/bin/jsonchecker/fail24.json
+           tps/rapidjson/bin/jsonchecker/fail25.json
+           tps/rapidjson/bin/jsonchecker/fail26.json
+           tps/rapidjson/bin/jsonchecker/fail27.json
+           tps/rapidjson/bin/jsonchecker/fail28.json
+           tps/rapidjson/bin/jsonchecker/fail29.json
+           tps/rapidjson/bin/jsonchecker/fail3.json
+           tps/rapidjson/bin/jsonchecker/fail30.json
+           tps/rapidjson/bin/jsonchecker/fail31.json
+           tps/rapidjson/bin/jsonchecker/fail32.json
+           tps/rapidjson/bin/jsonchecker/fail33.json
+           tps/rapidjson/bin/jsonchecker/fail4.json
+           tps/rapidjson/bin/jsonchecker/fail5.json
+           tps/rapidjson/bin/jsonchecker/fail6.json
+           tps/rapidjson/bin/jsonchecker/fail7.json
+           tps/rapidjson/bin/jsonchecker/fail8.json
+           tps/rapidjson/bin/jsonchecker/fail9.json
+           tps/rapidjson/bin/jsonchecker/pass1.json
+           tps/rapidjson/bin/jsonchecker/pass2.json
+           tps/rapidjson/bin/jsonchecker/pass3.json
+           tps/rapidjson/bin/jsonchecker/readme.txt
+           tps/rapidjson/bin/jsonschema/.gitignore
+           tps/rapidjson/bin/jsonschema/.travis.yml
+           tps/rapidjson/bin/jsonschema/README.md
+           tps/rapidjson/bin/jsonschema/bin/jsonschema_suite
+           tps/rapidjson/bin/jsonschema/remotes/folder/folderInteger.json
+           tps/rapidjson/bin/jsonschema/remotes/integer.json
+           tps/rapidjson/bin/jsonschema/remotes/subSchemas.json
+           tps/rapidjson/bin/jsonschema/tests/draft3/additionalItems.json
+           tps/rapidjson/bin/jsonschema/tests/draft3/additionalProperties.json
+           tps/rapidjson/bin/jsonschema/tests/draft3/default.json
+           tps/rapidjson/bin/jsonschema/tests/draft3/dependencies.json
+           tps/rapidjson/bin/jsonschema/tests/draft3/disallow.json
+           tps/rapidjson/bin/jsonschema/tests/draft3/divisibleBy.json
+           tps/rapidjson/bin/jsonschema/tests/draft3/enum.json
+           tps/rapidjson/bin/jsonschema/tests/draft3/extends.json
+           tps/rapidjson/bin/jsonschema/tests/draft3/items.json
+           tps/rapidjson/bin/jsonschema/tests/draft3/maxItems.json
+           tps/rapidjson/bin/jsonschema/tests/draft3/maxLength.json
+           tps/rapidjson/bin/jsonschema/tests/draft3/maximum.json
+           tps/rapidjson/bin/jsonschema/tests/draft3/minItems.json
+           tps/rapidjson/bin/jsonschema/tests/draft3/minLength.json
+           tps/rapidjson/bin/jsonschema/tests/draft3/minimum.json
+           tps/rapidjson/bin/jsonschema/tests/draft3/optional/bignum.json
+           tps/rapidjson/bin/jsonschema/tests/draft3/optional/format.json
+           tps/rapidjson/bin/jsonschema/tests/draft3/optional/jsregex.json
+           tps/rapidjson/bin/jsonschema/tests/draft3/optional/zeroTerminatedFloats.json
+           tps/rapidjson/bin/jsonschema/tests/draft3/pattern.json
+           tps/rapidjson/bin/jsonschema/tests/draft3/patternProperties.json
+           tps/rapidjson/bin/jsonschema/tests/draft3/properties.json
+           tps/rapidjson/bin/jsonschema/tests/draft3/ref.json
+           tps/rapidjson/bin/jsonschema/tests/draft3/refRemote.json
+           tps/rapidjson/bin/jsonschema/tests/draft3/required.json
+           tps/rapidjson/bin/jsonschema/tests/draft3/type.json
+           tps/rapidjson/bin/jsonschema/tests/draft3/uniqueItems.json
+           tps/rapidjson/bin/jsonschema/tests/draft4/additionalItems.json
+           tps/rapidjson/bin/jsonschema/tests/draft4/additionalProperties.json
+           tps/rapidjson/bin/jsonschema/tests/draft4/allOf.json
+           tps/rapidjson/bin/jsonschema/tests/draft4/anyOf.json
+           tps/rapidjson/bin/jsonschema/tests/draft4/default.json
+           tps/rapidjson/bin/jsonschema/tests/draft4/definitions.json
+           tps/rapidjson/bin/jsonschema/tests/draft4/dependencies.json
+           tps/rapidjson/bin/jsonschema/tests/draft4/enum.json
+           tps/rapidjson/bin/jsonschema/tests/draft4/items.json
+           tps/rapidjson/bin/jsonschema/tests/draft4/maxItems.json
+           tps/rapidjson/bin/jsonschema/tests/draft4/maxLength.json
+           tps/rapidjson/bin/jsonschema/tests/draft4/maxProperties.json
+           tps/rapidjson/bin/jsonschema/tests/draft4/maximum.json
+           tps/rapidjson/bin/jsonschema/tests/draft4/minItems.json
+           tps/rapidjson/bin/jsonschema/tests/draft4/minLength.json
+           tps/rapidjson/bin/jsonschema/tests/draft4/minProperties.json
+           tps/rapidjson/bin/jsonschema/tests/draft4/minimum.json
+           tps/rapidjson/bin/jsonschema/tests/draft4/multipleOf.json
+           tps/rapidjson/bin/jsonschema/tests/draft4/not.json
+           tps/rapidjson/bin/jsonschema/tests/draft4/oneOf.json
+           tps/rapidjson/bin/jsonschema/tests/draft4/optional/bignum.json
+           tps/rapidjson/bin/jsonschema/tests/draft4/optional/format.json
+           tps/rapidjson/bin/jsonschema/tests/draft4/optional/zeroTerminatedFloats.json
+           tps/rapidjson/bin/jsonschema/tests/draft4/pattern.json
+           tps/rapidjson/bin/jsonschema/tests/draft4/patternProperties.json
+           tps/rapidjson/bin/jsonschema/tests/draft4/properties.json
+           tps/rapidjson/bin/jsonschema/tests/draft4/ref.json
+           tps/rapidjson/bin/jsonschema/tests/draft4/refRemote.json
+           tps/rapidjson/bin/jsonschema/tests/draft4/required.json
+           tps/rapidjson/bin/jsonschema/tests/draft4/type.json
+           tps/rapidjson/bin/jsonschema/tests/draft4/uniqueItems.json
+           tps/rapidjson/bin/jsonschema/tox.ini
+           tps/rapidjson/bin/types/alotofkeys.json
+           tps/rapidjson/bin/types/booleans.json
+           tps/rapidjson/bin/types/floats.json
+           tps/rapidjson/bin/types/guids.json
+           tps/rapidjson/bin/types/integers.json
+           tps/rapidjson/bin/types/mixed.json
+           tps/rapidjson/bin/types/nulls.json
+           tps/rapidjson/bin/types/paragraphs.json
+           tps/rapidjson/bin/types/readme.txt
+           tps/rapidjson/bin/unittestschema/address.json
+           tps/rapidjson/bin/unittestschema/allOf_address.json
+           tps/rapidjson/bin/unittestschema/anyOf_address.json
+           tps/rapidjson/bin/unittestschema/idandref.json
+           tps/rapidjson/bin/unittestschema/oneOf_address.json
+           tps/rapidjson/contrib/natvis/README.md
+           tps/rapidjson/doc/CMakeLists.txt
+           tps/rapidjson/doc/Doxyfile.in
+           tps/rapidjson/doc/Doxyfile.zh-cn.in
+           tps/rapidjson/doc/diagram/architecture.dot
+           tps/rapidjson/doc/diagram/architecture.png
+           tps/rapidjson/doc/diagram/insituparsing.dot
+           tps/rapidjson/doc/diagram/insituparsing.png
+           tps/rapidjson/doc/diagram/iterative-parser-states-diagram.dot
+           tps/rapidjson/doc/diagram/iterative-parser-states-diagram.png
+           tps/rapidjson/doc/diagram/makefile
+           tps/rapidjson/doc/diagram/move1.dot
+           tps/rapidjson/doc/diagram/move1.png
+           tps/rapidjson/doc/diagram/move2.dot
+           tps/rapidjson/doc/diagram/move2.png
+           tps/rapidjson/doc/diagram/move3.dot
+           tps/rapidjson/doc/diagram/move3.png
+           tps/rapidjson/doc/diagram/normalparsing.dot
+           tps/rapidjson/doc/diagram/normalparsing.png
+           tps/rapidjson/doc/diagram/simpledom.dot
+           tps/rapidjson/doc/diagram/simpledom.png
+           tps/rapidjson/doc/diagram/tutorial.dot
+           tps/rapidjson/doc/diagram/tutorial.png
+           tps/rapidjson/doc/diagram/utilityclass.dot
+           tps/rapidjson/doc/diagram/utilityclass.png
+           tps/rapidjson/doc/dom.md
+           tps/rapidjson/doc/dom.zh-cn.md
+           tps/rapidjson/doc/encoding.md
+           tps/rapidjson/doc/encoding.zh-cn.md
+           tps/rapidjson/doc/faq.md
+           tps/rapidjson/doc/faq.zh-cn.md
+           tps/rapidjson/doc/features.md
+           tps/rapidjson/doc/features.zh-cn.md
+           tps/rapidjson/doc/internals.md
+           tps/rapidjson/doc/internals.zh-cn.md
+           tps/rapidjson/doc/logo/rapidjson.png
+           tps/rapidjson/doc/misc/doxygenextra.css
+           tps/rapidjson/doc/npm.md
+           tps/rapidjson/doc/performance.md
+           tps/rapidjson/doc/performance.zh-cn.md
+           tps/rapidjson/doc/pointer.md
+           tps/rapidjson/doc/pointer.zh-cn.md
+           tps/rapidjson/doc/sax.md
+           tps/rapidjson/doc/sax.zh-cn.md
+           tps/rapidjson/doc/schema.md
+           tps/rapidjson/doc/schema.zh-cn.md
+           tps/rapidjson/doc/stream.md
+           tps/rapidjson/doc/stream.zh-cn.md
+           tps/rapidjson/doc/tutorial.md
+           tps/rapidjson/doc/tutorial.zh-cn.md
+           tps/rapidjson/docker/debian/Dockerfile
+           tps/rapidjson/example/CMakeLists.txt
+           tps/rapidjson/example/archiver/archiver.cpp
+           tps/rapidjson/example/archiver/archiver.h
+           tps/rapidjson/example/archiver/archivertest.cpp
+           tps/rapidjson/example/capitalize/capitalize.cpp
+           tps/rapidjson/example/condense/condense.cpp
+           tps/rapidjson/example/filterkey/filterkey.cpp
+           tps/rapidjson/example/filterkeydom/filterkeydom.cpp
+           tps/rapidjson/example/jsonx/jsonx.cpp
+           tps/rapidjson/example/lookaheadparser/lookaheadparser.cpp
+           tps/rapidjson/example/messagereader/messagereader.cpp
+           tps/rapidjson/example/parsebyparts/parsebyparts.cpp
+           tps/rapidjson/example/pretty/pretty.cpp
+           tps/rapidjson/example/prettyauto/prettyauto.cpp
+           tps/rapidjson/example/schemavalidator/schemavalidator.cpp
+           tps/rapidjson/example/serialize/serialize.cpp
+           tps/rapidjson/example/simpledom/simpledom.cpp
+           tps/rapidjson/example/simplepullreader/simplepullreader.cpp
+           tps/rapidjson/example/simplereader/simplereader.cpp
+           tps/rapidjson/example/simplewriter/simplewriter.cpp
+           tps/rapidjson/example/sortkeys/sortkeys.cpp
+           tps/rapidjson/example/traverseaspointer.cpp
+           tps/rapidjson/example/tutorial/tutorial.cpp
+           tps/rapidjson/include_dirs.js
+           tps/rapidjson/library.json
+           tps/rapidjson/package.json
+           tps/rapidjson/test/CMakeLists.txt
+           tps/rapidjson/test/perftest/CMakeLists.txt
+           tps/rapidjson/test/perftest/schematest.cpp
+           tps/rapidjson/test/unittest/CMakeLists.txt
+           tps/rapidjson/test/valgrind.supp
+           tps/rapidjson/travis-doxygen.sh
+Copyright: __NO_COPYRIGHT_NOR_LICENSE__
+License:   __NO_COPYRIGHT_NOR_LICENSE__
+
+Files:     tps/rapidjson/include/rapidjson/allocators.h
+           tps/rapidjson/include/rapidjson/cursorstreamwrapper.h
+           tps/rapidjson/include/rapidjson/document.h
+           tps/rapidjson/include/rapidjson/encodedstream.h
+           tps/rapidjson/include/rapidjson/encodings.h
+           tps/rapidjson/include/rapidjson/error/en.h
+           tps/rapidjson/include/rapidjson/error/error.h
+           tps/rapidjson/include/rapidjson/filereadstream.h
+           tps/rapidjson/include/rapidjson/filewritestream.h
+           tps/rapidjson/include/rapidjson/fwd.h
+           tps/rapidjson/include/rapidjson/internal/biginteger.h
+           tps/rapidjson/include/rapidjson/internal/clzll.h
+           tps/rapidjson/include/rapidjson/internal/ieee754.h
+           tps/rapidjson/include/rapidjson/internal/itoa.h
+           tps/rapidjson/include/rapidjson/internal/meta.h
+           tps/rapidjson/include/rapidjson/internal/pow10.h
+           tps/rapidjson/include/rapidjson/internal/regex.h
+           tps/rapidjson/include/rapidjson/internal/stack.h
+           tps/rapidjson/include/rapidjson/internal/strfunc.h
+           tps/rapidjson/include/rapidjson/internal/strtod.h
+           tps/rapidjson/include/rapidjson/internal/swap.h
+           tps/rapidjson/include/rapidjson/istreamwrapper.h
+           tps/rapidjson/include/rapidjson/memorybuffer.h
+           tps/rapidjson/include/rapidjson/memorystream.h
+           tps/rapidjson/include/rapidjson/ostreamwrapper.h
+           tps/rapidjson/include/rapidjson/pointer.h
+           tps/rapidjson/include/rapidjson/prettywriter.h
+           tps/rapidjson/include/rapidjson/rapidjson.h
+           tps/rapidjson/include/rapidjson/reader.h
+           tps/rapidjson/include/rapidjson/stream.h
+           tps/rapidjson/include/rapidjson/stringbuffer.h
+           tps/rapidjson/include/rapidjson/uri.h
+           tps/rapidjson/include/rapidjson/writer.h
+           tps/rapidjson/test/perftest/misctest.cpp
+           tps/rapidjson/test/perftest/perftest.cpp
+           tps/rapidjson/test/perftest/perftest.h
+           tps/rapidjson/test/perftest/platformtest.cpp
+           tps/rapidjson/test/perftest/rapidjsontest.cpp
+           tps/rapidjson/test/unittest/allocatorstest.cpp
+           tps/rapidjson/test/unittest/bigintegertest.cpp
+           tps/rapidjson/test/unittest/clzlltest.cpp
+           tps/rapidjson/test/unittest/cursorstreamwrappertest.cpp
+           tps/rapidjson/test/unittest/documenttest.cpp
+           tps/rapidjson/test/unittest/dtoatest.cpp
+           tps/rapidjson/test/unittest/encodedstreamtest.cpp
+           tps/rapidjson/test/unittest/encodingstest.cpp
+           tps/rapidjson/test/unittest/filestreamtest.cpp
+           tps/rapidjson/test/unittest/fwdtest.cpp
+           tps/rapidjson/test/unittest/istreamwrappertest.cpp
+           tps/rapidjson/test/unittest/itoatest.cpp
+           tps/rapidjson/test/unittest/jsoncheckertest.cpp
+           tps/rapidjson/test/unittest/namespacetest.cpp
+           tps/rapidjson/test/unittest/ostreamwrappertest.cpp
+           tps/rapidjson/test/unittest/platformtest.cpp
+           tps/rapidjson/test/unittest/pointertest.cpp
+           tps/rapidjson/test/unittest/prettywritertest.cpp
+           tps/rapidjson/test/unittest/readertest.cpp
+           tps/rapidjson/test/unittest/regextest.cpp
+           tps/rapidjson/test/unittest/schematest.cpp
+           tps/rapidjson/test/unittest/strfunctest.cpp
+           tps/rapidjson/test/unittest/stringbuffertest.cpp
+           tps/rapidjson/test/unittest/strtodtest.cpp
+           tps/rapidjson/test/unittest/unittest.cpp
+           tps/rapidjson/test/unittest/unittest.h
+           tps/rapidjson/test/unittest/uritest.cpp
+           tps/rapidjson/test/unittest/valuetest.cpp
+           tps/rapidjson/test/unittest/writertest.cpp
+Copyright: 2015-2021 THL A29 Limited, a Tencent company, and Milo Yip.
+           2021 IBM Corporation
+License:   __UNKNOWN__
+ Licensed under the MIT License (the "License"); you may not use this file except
+ in compliance with the License. You may obtain a copy of the License at
+ .
+ http://opensource.org/licenses/MIT
+ .
+ Unless required by applicable law or agreed to in writing, software distributed
+ under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+ CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ specific language governing permissions and limitations under the License.
+
+Files:     tps/rapidjson/include/rapidjson/internal/diyfp.h
+           tps/rapidjson/include/rapidjson/internal/dtoa.h
+Copyright: 2015 THL A29 Limited, a Tencent company, and Milo Yip.
+License:   __UNKNOWN__
+ Licensed under the MIT License (the "License"); you may not use this file except
+ in compliance with the License. You may obtain a copy of the License at
+ .
+ http://opensource.org/licenses/MIT
+ .
+ Unless required by applicable law or agreed to in writing, software distributed
+ under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+ CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ specific language governing permissions and limitations under the License.
+ .
+ This is a C++ header-only implementation of Grisu2 algorithm from the publication:
+ Loitsch, Florian. "Printing floating-point numbers quickly and accurately with
+ integers." ACM Sigplan Notices 45.6 (2010): 233-243.
+
+Files:     tps/rapidjson/include/rapidjson/msinttypes/inttypes.h
+           tps/rapidjson/include/rapidjson/msinttypes/stdint.h
+Copyright: 2006-2013 Alexander Chemeris
+License:   BSD-3-Clause
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions are met:
+ .
+ 1. Redistributions of source code must retain the above copyright notice,
+ this list of conditions and the following disclaimer.
+ .
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in the
+ documentation and/or other materials provided with the distribution.
+ .
+ 3. Neither the name of the product nor the names of its contributors may
+ be used to endorse or promote products derived from this software
+ without specific prior written permission.
+ .
+ THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
+ EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ .
+ The above software in this distribution may have been modified by
+ THL A29 Limited ("Tencent Modifications").
+ All Tencent Modifications are Copyright (C) 2015 THL A29 Limited.
+ .
+ On Debian systems, the complete text of the BSD 3-clause "New" or "Revised"
+ License can be found in `/usr/share/common-licenses/BSD'.
+
+Files:     tps/rapidjson/license.txt
+Copyright: 2015 THL A29 Limited, a Tencent company, and Milo Yip.
+License:   __UNKNOWN__
+ If you have downloaded a copy of the RapidJSON binary from Tencent, please note that the RapidJSON binary is licensed under the MIT License.
+ If you have downloaded a copy of the RapidJSON source code from Tencent, please note that RapidJSON source code is licensed under the MIT License, except for the third-party components listed below which are subject to different license terms.  Your integration of RapidJSON into your own projects may require compliance with the MIT License, as well as the other licenses applicable to the third-party components included within RapidJSON. To avoid the problematic JSON license in your own projects, it's sufficient to exclude the bin/jsonchecker/ directory, as it's the only code under the JSON license.
+ A copy of the MIT License is included in this file.
+ .
+ Other dependencies and licenses:
+ .
+ Open Source Software Licensed Under the BSD License:
+
+Files:     tps/rapidjson/readme.zh-cn.md
+Copyright: 2015 THL A29 Limited, a Tencent company, and Milo Yip.
+License:   __UNKNOWN__
+ * [RapidJSON GitHub](https://github.com/Tencent/rapidjson/)
+ * RapidJSON 文档
+ * [English](http://rapidjson.org/)
+ * [简体中文](http://rapidjson.org/zh-cn/)
+ * [GitBook](https://www.gitbook.com/book/miloyip/rapidjson/details/zh-cn) 可下载 PDF/EPUB/MOBI，但不含 API 参考手册。
+ .
+ ## Build 状态
+ .
+ | [Linux][lin-link] | [Windows][win-link] | [Coveralls][cov-link] |
+ | :---------------: | :-----------------: | :-------------------: |
+ | ![lin-badge]      | ![win-badge]        | ![cov-badge]          |
+
+Files:     tps/rapidjson/rapidjson.autopkg
+Copyright: __NO_COPYRIGHT__ in: tps/rapidjson/rapidjson.autopkg
+License:   __UNKNOWN__
+ // if you need to span several lines you can prefix a string with an @ symbol (exactly like c# does).
+ description: @"Rapidjson is an attempt to create the fastest JSON parser and generator.
+ .
+ - Small but complete. Supports both SAX and DOM style API. SAX parser only a few hundred lines of code.
+ - Fast. In the order of magnitude of strlen(). Optionally supports SSE2/SSE4.2 for acceleration.
+ - Self-contained. Minimal dependency on standard libraries. No BOOST, not even STL.
+ - Compact. Each JSON value is 16 or 20 bytes for 32 or 64-bit machines respectively (excluding text string storage). With the custom memory allocator, parser allocates memory compactly during parsing.
+ - Full  RFC4627 compliance. Supports UTF-8, UTF-16 and UTF-32.
+ - Support both in-situ parsing (directly decode strings into the source JSON text) and non-destructive parsing (decode strings into new buffers).
+
+Files:     tps/rapidjson/include/rapidjson/schema.h
+Copyright: 2015 THL A29 Limited, a Tencent company, and Milo Yip-> >
+License:   __UNKNOWN__
+ Licensed under the MIT License (the "License"); you may not use this file except
+ in compliance with the License-> You may obtain a copy of the License at
+ .
+ http://opensource->org/licenses/MIT
+ .
+ Unless required by applicable law or agreed to in writing, software distributed
+ under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+ CONDITIONS OF ANY KIND, either express or implied-> See the License for the
+ specific language governing permissions and limitations under the License->
+
+Files:     tps/rapidjson/readme.md
+Copyright: 2015 THL A29 Limited, a Tencent company, and Milo Yip.
+License:   __UNKNOWN__
+ * [RapidJSON GitHub](https://github.com/Tencent/rapidjson/)
+ * RapidJSON Documentation
+ * [English](http://rapidjson.org/)
+ * [简体中文](http://rapidjson.org/zh-cn/)
+ * [GitBook](https://www.gitbook.com/book/miloyip/rapidjson/) with downloadable PDF/EPUB/MOBI, without API reference.
+ .
+ ## Build status
+ .
+ | [Linux][lin-link] | [Windows][win-link] | [Coveralls][cov-link] |
+ | :---------------: | :-----------------: | :-------------------: |
+ | ![lin-badge]      | ![win-badge]        | ![cov-badge]          |
+
+Files:     tps/rapidjson/test/unittest/simdtest.cpp
+Copyright: 2015 THL A29 Limited, a Tencent company, and Milo Yip.
+License:   __UNKNOWN__
+ Licensed under the MIT License (the "License"); you may not use this file except
+ in compliance with the License. You may obtain a copy of the License at
+ .
+ http://opensource.org/licenses/MIT
+ .
+ Unless required by applicable law or agreed to in writing, software distributed
+ under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+ CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ specific language governing permissions and limitations under the License.
+ .
+ Since Travis CI installs old Valgrind 3.7.0, which fails with some SSE4.2
+ The unit tests prefix with SIMD should be skipped by Valgrind test
+
+#----------------------------------------------------------------------------
+# xml and html files (skipped):
+#         tps/rapidjson/doc/logo/rapidjson.svg
+#         tps/rapidjson/doc/misc/DoxygenLayout.xml
+#         tps/rapidjson/doc/misc/header.html
+#         tps/rapidjson/doc/misc/footer.html
+#         tps/rapidjson/contrib/natvis/rapidjson.natvis
+
+#----------------------------------------------------------------------------
+# huge files   (skipped):
+#         tps/rapidjson/ha1.tar
+
+#----------------------------------------------------------------------------
+# Files marked as NO_LICENSE_TEXT_FOUND may be covered by the following
+# license/copyright files.

@@ -1,0 +1,14 @@
+Source: pisound-micro-mapper
+Section: utils
+Priority: optional
+Maintainer: Blokas <hello@blokas.io>
+Build-Depends: debhelper-compat (= 12)
+Standards-Version: 4.5.0
+Homepage: https://blokas.io/
+
+Package: pisound-micro-mapper
+Architecture: any
+Multi-Arch: foreign
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Description: Pisound Micro Mapper - manages mappings of Pisound Micro I/O and other subsystems
+  like ALSA mixer, ALSA MIDI, OSC, etc.

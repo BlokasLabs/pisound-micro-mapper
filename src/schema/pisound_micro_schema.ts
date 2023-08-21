@@ -1,9 +1,24 @@
 // Control types will be transformed to lower case in json data prior to validation.
 export enum ControlType {
+	/**
+	 * An Encoder control. Required properties: `pins`, optional properties: `input_min`, `input_max`, `value_low`, `value_high`, `mode`.
+	 */
 	ENCODER = "encoder",
+	/**
+	 * An Analog Input control. Required properties: `pin`, optional properties: `input_min`, `input_max`, `value_low`, `value_high`.
+	 */
 	ANALOG_IN = "analog_in",
+	/**
+	 * A GPIO Input control. Required property: `pin`.
+	 */
 	GPIO_IN = "gpio_input",
+	/**
+	 * A GPIO Output control. Required properties: `pin`, `value`.
+	 */
 	GPIO_OUT = "gpio_output",
+	/**
+	 * An Activity control. Required properties: `activity`, `pin`.
+	 */
 	ACTIVITY = "activity",
 }
 
@@ -34,19 +49,29 @@ export interface ControlBase
 }
 
 export interface ControlValueBase extends ControlBase {
-	input_low?: number;
-	input_high?: number;
+	input_min?: number;
+	input_max?: number;
 	value_low?: number;
 	value_high?: number;
 }
 
 export enum EncoderValueMode {
+	/**
+	 * The Encoder's value will stay within the boundaries.
+	 */
 	CLAMP = "clamp",
+
+	/**
+	 * The Encoder's value will wrap around to the other boundary.
+	 */
 	WRAP = "wrap",
 };
 
 export interface Encoder extends ControlValueBase {
 	type: ControlType.ENCODER;
+	/**
+	 * [ Pin A, Pin A Pull, Pin B, Pin B Pull ]
+	 */
 	pins: [ PinName, PinPull, PinName, PinPull ];
 	mode?: EncoderValueMode;
 }
@@ -58,6 +83,9 @@ export interface AnalogInput extends ControlValueBase {
 
 export interface GpioInput extends ControlBase {
 	type: ControlType.GPIO_IN;
+	/**
+	 * [ Pin, Pull ]
+	 */
 	pin: [ PinName, PinPull ];
 }
 
@@ -66,6 +94,8 @@ export interface GpioOutput extends ControlBase {
 	pin: PinName;
 
 	/**
+	 * Either a boolean true/false or 0 or 1.
+	 *
 	 * @minimum 0
 	 * @maximum 1
 	 */

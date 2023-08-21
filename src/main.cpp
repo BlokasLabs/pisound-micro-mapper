@@ -71,6 +71,7 @@ static int loadConfig(ControlManager &mgr, const char *file)
 	if (!stream.good())
 	{
 		LOG_ERROR(R"(Failed to open "%s"!)", file);
+		return -ENOENT;
 	}
 
 	ConfigLoader cfgLoader;
@@ -98,8 +99,60 @@ static int loadConfig(ControlManager &mgr, const char *file)
 	return cfgLoader.processJson(mgr, doc);
 }
 
+static void printVersion()
+{
+	printf("pisound-micro-mapper version 1.0.0 © Blokas https://blokas.io/\n");
+}
+
+static void printUsage()
+{
+	printf(
+R"(pisound-micro-mapper usage:
+
+	pisound-micro-mapper [--config <config.json>]
+
+	--config <config.json>      Load the config from the specified file. Default: /etc/pisound-micro-mapper.json
+	--help                      Print this help
+	--version                   Print version
+
+)");
+	printVersion();
+}
+
 int main(int argc, char **argv)
 {
+	const char *config_file = "/etc/pisound-micro-mapper.json";
+
+	for (int i = 1; i < argc; ++i)
+	{
+		if (strncmp(argv[i], "--config", 9) == 0)
+		{
+			if (i + 1 >= argc)
+			{
+				printUsage();
+				return EXIT_FAILURE;
+			}
+
+			config_file = argv[i + 1];
+			++i;
+		}
+		else if (strcmp(argv[i], "--help") == 0)
+		{
+			printUsage();
+			return EXIT_SUCCESS;
+		}
+		else if (strcmp(argv[i], "--version") == 0)
+		{
+			printVersion();
+			return EXIT_SUCCESS;
+		}
+		else
+		{
+			printUsage();
+			return EXIT_FAILURE;
+		}
+	}
+
 	static StdioLogger stdioLogger;
 	Logger::registerLogger(stdioLogger);
 	Logger::setEnabled(true);
@@ -118,7 +171,7 @@ int main(int argc, char **argv)
 
 	ControlManager mgr;
 
-	int err = loadConfig(mgr, "example.json");
+	int err = loadConfig(mgr, config_file);
 	if (err < 0)
 	{
 		LOG_ERROR("Loading config failed with error %d! (%s)", err, strerror(-err));

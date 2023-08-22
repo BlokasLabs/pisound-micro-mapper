@@ -8,7 +8,7 @@ MidiControlServer::control_id_t MidiControlServer::buildId(MidiControlType type,
 	return ((type&0xf) << 11) | ((channel&0xf) << 7) | (id&0x7f);
 }
 
-MidiControlServer::control_id_t MidiControlServer::identify(int16_t &value, const snd_seq_event_t *ev)
+std::pair<MidiControlServer::control_id_t, MidiControlServer::control_id_t> MidiControlServer::identify(int16_t &value, const snd_seq_event_t *ev)
 {
 	MidiControlType type;
 	int8_t channel;
@@ -84,10 +84,24 @@ MidiControlServer::control_id_t MidiControlServer::identify(int16_t &value, cons
 		break;
 	default:
 		value = -1;
-		return -1;
+		return std::make_pair(-1, -1);
 	}
 
-	return buildId(type, channel, id);
+	control_id_t ctrlA = buildId(type, channel, id);
+	control_id_t ctrlB;
+
+	switch (type)
+	{
+	case MCT_NOTE_ON:
+	case MCT_NOTE_OFF:
+		ctrlB = buildId(MCT_NOTE, channel, id);
+		break;
+	default:
+		ctrlB = -1;
+		break;
+	}
+
+	return std::make_pair(ctrlA, ctrlB);
 }
 
 class MidiControlServer::Control : public IControl
@@ -296,15 +310,20 @@ int MidiControlServer::handleFdEvents(struct pollfd *fds, size_t nfds, size_t ne
 void MidiControlServer::handleEvent(const snd_seq_event_t *ev)
 {
 	int16_t value;
-	control_id_t id = identify(value, ev);
-	if (id < 0)
-		return;
+	auto ctrl = identify(value, ev);
 
-	auto range = m_controls.equal_range(id);
-	for (auto itr = range.first; itr != range.second; ++itr)
+	for (int i=0; i<2; ++i)
 	{
-		itr->second.updateValue(value);
-		m_listener->onControlChange(&itr->second, 0);
+		const auto &id = i ? ctrl.second : ctrl.first;
+		if (id < 0)
+			break;
+
+		auto range = m_controls.equal_range(id);
+		for (auto itr = range.first; itr != range.second; ++itr)
+		{
+			itr->second.updateValue(value);
+			m_listener->onControlChange(&itr->second, 0);
+		}
 	}
 }
 

@@ -20,6 +20,7 @@ struct midi_control_info_t
 
 static MidiControlType str_to_mct(const char *s)
 {
+	if (0 == strncmp("note", s, 5))              return MCT_NOTE;
 	if (0 == strncmp("note_on", s, 8))           return MCT_NOTE_ON;
 	if (0 == strncmp("note_off", s, 9))          return MCT_NOTE_OFF;
 	if (0 == strncmp("control_change", s, 15))   return MCT_CONTROL_CHANGE;
@@ -63,6 +64,7 @@ static bool parseControlInfo(midi_control_info_t &info, const rapidjson::Value &
 
 	switch (info.type)
 	{
+	case MCT_NOTE:
 	case MCT_NOTE_ON:
 	case MCT_NOTE_OFF:
 	case MCT_CONTROL_CHANGE:

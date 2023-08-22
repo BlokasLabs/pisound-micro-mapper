@@ -10,6 +10,7 @@
 enum MidiControlType
 {
 	MCT_UNKNOWN=-1,
+	MCT_NOTE, // React to both On and Off.
 	MCT_NOTE_ON,
 	MCT_NOTE_OFF,
 	MCT_CONTROL_CHANGE,
@@ -49,7 +50,7 @@ private:
 	typedef int16_t control_id_t;
 
 	static control_id_t buildId(MidiControlType type, int8_t channel, int8_t id);
-	static control_id_t identify(int16_t &value, const snd_seq_event_t *ev);
+	static std::pair<control_id_t, control_id_t> identify(int16_t &value, const snd_seq_event_t *ev);
 
 	void uninit();
 

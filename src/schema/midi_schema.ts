@@ -1,4 +1,5 @@
 export enum MidiControlType {
+	NOTE = 'note',
 	NOTE_ON = 'note_on',
 	NOTE_OFF = 'note_off',
 	CONTROL_CHANGE = 'control_change',
@@ -22,15 +23,8 @@ export interface MidiControlWithChannel extends MidiControlBase {
 	channel?: number,
 }
 
-export interface MidiNoteOn extends MidiControlWithChannel {
-	type: MidiControlType.NOTE_ON,
-	// @minimum 0
-	// @maximum 127
-	id: number,
-}
-
-export interface MidiNoteOff extends MidiControlWithChannel {
-	type: MidiControlType.NOTE_OFF,
+export interface MidiNote extends MidiControlWithChannel {
+	type: MidiControlType.NOTE_ON | MidiControlType.NOTE_OFF | MidiControlType.NOTE,
 	// @minimum 0
 	// @maximum 127
 	id: number,
@@ -82,8 +76,8 @@ export interface MidiReset extends MidiControlBase {
 }
 
 export type MidiControl =
-	MidiNoteOn | MidiNoteOff | MidiControlChange | MidiProgramChange |
-	MidiPitchBend | MidiChannelPressure | MidiPolyAftertouch | MidiStart |
+	MidiNote | MidiControlChange | MidiProgramChange | MidiPitchBend |
+	MidiChannelPressure | MidiPolyAftertouch | MidiStart |
 	MidiContinue | MidiStop | MidiReset;
 
 export type PortName = string;

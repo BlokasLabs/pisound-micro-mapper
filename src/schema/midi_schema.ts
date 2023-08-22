@@ -20,28 +20,25 @@ export interface MidiControlBase {
 export interface MidiControlWithChannel extends MidiControlBase {
 	// @minimum 1
 	// @maximum 16
-	channel?: number,
+	channel: number,
 }
 
-export interface MidiNote extends MidiControlWithChannel {
+export interface MidiControlWithChannelAndId extends MidiControlWithChannel {
+	// @minimum 0
+	// @maximum 127
+	id: number,
+}
+
+export interface MidiNote extends MidiControlWithChannelAndId {
 	type: MidiControlType.NOTE_ON | MidiControlType.NOTE_OFF | MidiControlType.NOTE,
-	// @minimum 0
-	// @maximum 127
-	id: number,
 }
 
-export interface MidiControlChange extends MidiControlWithChannel {
+export interface MidiControlChange extends MidiControlWithChannelAndId {
 	type: MidiControlType.CONTROL_CHANGE,
-	// @minimum 0
-	// @maximum 127
-	id: number,
 }
 
-export interface MidiProgramChange extends MidiControlWithChannel {
+export interface MidiProgramChange extends MidiControlWithChannelAndId {
 	type: MidiControlType.PROGRAM_CHANGE,
-	// @minimum 0
-	// @maximum 127
-	id: number,
 }
 
 export interface MidiPitchBend extends MidiControlWithChannel {
@@ -52,11 +49,8 @@ export interface MidiChannelPressure extends MidiControlWithChannel {
 	type: MidiControlType.CHANNEL_PRESSURE,
 }
 
-export interface MidiPolyAftertouch extends MidiControlWithChannel {
+export interface MidiPolyAftertouch extends MidiControlWithChannelAndId {
 	type: MidiControlType.POLY_AFTERTOUCH,
-	// @minimum 0
-	// @maximum 127
-	id: number,
 }
 
 export interface MidiStart extends MidiControlBase {

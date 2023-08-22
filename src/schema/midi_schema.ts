@@ -84,8 +84,8 @@ export type PortName = string;
 
 export interface midi_schema_v1 {
 	[port: string] : {
-		output_to?: PortName | Array<PortName>,
-		input_from?: PortName | Array<PortName>,
+		//output_to?: PortName | Array<PortName>,
+		//input_from?: PortName | Array<PortName>,
 		controls: {
 			[key: string]: MidiControl
 		}

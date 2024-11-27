@@ -9,7 +9,7 @@ if [ $? -ne 0 ]; then
 	exit 1
 fi
 xxd -i < ${PIPE} >> $2 &
-npx ts-json-schema-generator --minify --strict-tuples --path $1 --no-top-ref --type ${TYPE} > ${PIPE}
+npx -y ts-json-schema-generator --minify --strict-tuples --path $1 --no-top-ref --type ${TYPE} > ${PIPE}
 if [ $? -ne 0 ]; then
 	rm ${PIPE}
 	rm $2

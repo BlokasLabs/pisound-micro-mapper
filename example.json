@@ -27,7 +27,7 @@
 			}
 		},
 		"alsa": {
-			"hw:micro": [
+			"hw:pisoundmicro": [
 				"Digital Playback Volume",
 				[ "Digital Capture Volume", { "alias": "rec_vol" } ]
 			]

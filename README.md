@@ -102,7 +102,7 @@ Where direction can be:
 
 ## Command Line Options
 
-```
+```bash
 pisound-micro-mapper [--config <config.json>]
 
 --config <config.json>      Load the config from the specified file. Default: /etc/pisound-micro-mapper.json

@@ -1,7 +1,7 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: pisound-micro-mapper
-Upstream-Contact: <preferred name and address to reach the upstream project>
-Source: <url://example.com>
+Upstream-Contact: Giedrius Trainavičius <hello@blokas.io>
+Source: https://github.com/BlokasLabs/pisound-micro-mapper
 #
 # Please double check copyright with the licensecheck(1) command.
 
@@ -10,44 +10,15 @@ Files:     .gitignore
            .vscode/c_cpp_properties.json
            .vscode/launch.json
            .vscode/settings.json
-           Makefile
+           README.md
+           debian/control
+           debian/pisound-micro-mapper.service
+           debian/postinst
+           debian/rules
+           debian/source/format
+           debian/source/local-options
+           debian/watch
            example.json
-           gen_schema.sh
-           src/alsa-control-server-loader.cpp
-           src/alsa-control-server-loader.h
-           src/alsa-control-server.cpp
-           src/alsa-control-server.h
-           src/config-loader.cpp
-           src/config-loader.h
-           src/control-manager.cpp
-           src/control-manager.h
-           src/control-server.h
-           src/dtors.cpp
-           src/logger.cpp
-           src/logger.h
-           src/main.cpp
-           src/midi-control-server-loader.cpp
-           src/midi-control-server-loader.h
-           src/midi-control-server.cpp
-           src/midi-control-server.h
-           src/osc-control-server-loader.cpp
-           src/osc-control-server-loader.h
-           src/osc-control-server.cpp
-           src/osc-control-server.h
-           src/schema-test.cpp
-           src/schema/all_schema.ts
-           src/schema/alsa_schema.ts
-           src/schema/config_schema.ts
-           src/schema/mappings.ts
-           src/schema/midi_schema.ts
-           src/schema/osc_schema.ts
-           src/schema/pisound_micro_schema.ts
-           src/upisnd-control-server-loader.cpp
-           src/upisnd-control-server-loader.h
-           src/upisnd-control-server.cpp
-           src/upisnd-control-server.h
-           src/utils.cpp
-           src/utils.h
            tps/rapidjson/.git
            tps/rapidjson/.gitattributes
            tps/rapidjson/.gitignore
@@ -361,6 +332,58 @@ License:   __UNKNOWN__
  CONDITIONS OF ANY KIND, either express or implied. See the License for the
  specific language governing permissions and limitations under the License.
 
+Files:     Makefile
+           gen_schema.sh
+           src/alsa-control-server-loader.cpp
+           src/alsa-control-server-loader.h
+           src/alsa-control-server.cpp
+           src/alsa-control-server.h
+           src/config-loader.cpp
+           src/config-loader.h
+           src/control-manager.cpp
+           src/control-manager.h
+           src/control-server.h
+           src/dtors.cpp
+           src/logger.cpp
+           src/logger.h
+           src/main.cpp
+           src/midi-control-server-loader.cpp
+           src/midi-control-server-loader.h
+           src/midi-control-server.cpp
+           src/midi-control-server.h
+           src/osc-control-server-loader.cpp
+           src/osc-control-server-loader.h
+           src/osc-control-server.cpp
+           src/osc-control-server.h
+           src/schema/all_schema.ts
+           src/schema/alsa_schema.ts
+           src/schema/config_schema.ts
+           src/schema/mappings.ts
+           src/schema/midi_schema.ts
+           src/schema/osc_schema.ts
+           src/upisnd-control-server-loader.cpp
+           src/upisnd-control-server-loader.h
+           src/upisnd-control-server.cpp
+           src/upisnd-control-server.h
+           src/utils.cpp
+           src/utils.h
+Copyright: 2023-2025 Vilniaus Blokas UAB, https://blokas.io/
+License:   GPL-2.0
+ This file is part of pisound-micro-mapper.
+ .
+ pisound-micro-mapper is free software: you can redistribute it and/or modify it under the terms of the
+ GNU General Public License as published by the Free Software Foundation, version 2.0 of the License.
+ .
+ pisound-micro-mapper is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+ the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+ for more details.
+ .
+ You should have received a copy of the GNU General Public License along with pisound-micro-mapper.
+ If not, see <https://www.gnu.org/licenses/>.
+ .
+ On Debian systems, the complete text of the GNU General Public License
+ Version 2 can be found in `/usr/share/common-licenses/GPL-2'.
+
 Files:     tps/rapidjson/include/rapidjson/internal/diyfp.h
            tps/rapidjson/include/rapidjson/internal/dtoa.h
 Copyright: 2015 THL A29 Limited, a Tencent company, and Milo Yip.
@@ -414,6 +437,46 @@ License:   BSD-3-Clause
  .
  On Debian systems, the complete text of the BSD 3-clause "New" or "Revised"
  License can be found in `/usr/share/common-licenses/BSD'.
+
+Files:     src/schema/pisound_micro_schema.ts
+Copyright: 2023-2025 Vilniaus Blokas UAB, https://blokas.io/
+License:   GPL-2.0
+ This file is part of pisound-micro-mapper.
+ .
+ pisound-micro-mapper is free software: you can redistribute it and/or modify it under the terms of the
+ GNU General Public License as published by the Free Software Foundation, version 2.0 of the License.
+ .
+ pisound-micro-mapper is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+ the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+ for more details.
+ .
+ You should have received a copy of the GNU General Public License along with pisound-micro-mapper.
+ If not, see <https://www.gnu.org/licenses/>.
+ .
+ Control types will be transformed to lower case in json data prior to validation.
+ .
+ On Debian systems, the complete text of the GNU General Public License
+ Version 2 can be found in `/usr/share/common-licenses/GPL-2'.
+
+Files:     src/schema-test.cpp
+Copyright: 2023-2025 Vilniaus Blokas UAB, https://blokas.io/
+License:   GPL-2.0
+ This file is part of pisound-micro-mapper.
+ .
+ pisound-micro-mapper is free software: you can redistribute it and/or modify it under the terms of the
+ GNU General Public License as published by the Free Software Foundation, version 2.0 of the License.
+ .
+ pisound-micro-mapper is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+ the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+ for more details.
+ .
+ You should have received a copy of the GNU General Public License along with pisound-micro-mapper.
+ If not, see <https://www.gnu.org/licenses/>.
+ .
+ Standalone appplication to test JSON config file against schema.
+ .
+ On Debian systems, the complete text of the GNU General Public License
+ Version 2 can be found in `/usr/share/common-licenses/GPL-2'.
 
 Files:     tps/rapidjson/license.txt
 Copyright: 2015 THL A29 Limited, a Tencent company, and Milo Yip.
@@ -500,16 +563,10 @@ License:   __UNKNOWN__
 
 #----------------------------------------------------------------------------
 # xml and html files (skipped):
-#         tps/rapidjson/doc/logo/rapidjson.svg
+#         tps/rapidjson/doc/misc/footer.html
 #         tps/rapidjson/doc/misc/DoxygenLayout.xml
 #         tps/rapidjson/doc/misc/header.html
-#         tps/rapidjson/doc/misc/footer.html
+#         tps/rapidjson/doc/logo/rapidjson.svg
 #         tps/rapidjson/contrib/natvis/rapidjson.natvis
 
-#----------------------------------------------------------------------------
-# huge files   (skipped):
-#         tps/rapidjson/ha1.tar
 
-#----------------------------------------------------------------------------
-# Files marked as NO_LICENSE_TEXT_FOUND may be covered by the following
-# license/copyright files.

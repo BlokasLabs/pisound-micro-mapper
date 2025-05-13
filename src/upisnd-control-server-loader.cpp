@@ -299,7 +299,7 @@ int PisoundMicroControlServerLoader::processJson(ControlManager &mgr, IControlRe
 			break;
 		case ACTIVITY:
 			{
-				auto activity = upisnd::Activity::setupActivity(
+				auto activity = upisnd::Activity::setup(
 					ctrl->name.GetString(),
 					upisnd_str_to_pin(ctrl->value["pin"].GetString()),
 					upisnd_str_to_activity(ctrl->value["activity"].GetString())

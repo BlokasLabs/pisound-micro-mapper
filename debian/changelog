@@ -1,3 +1,9 @@
+pisound-micro-mapper (1.0.0-2) UNRELEASED; urgency=low
+
+  * Updated for libpisoundmicro 1.0.1.
+
+ -- Giedrius Trainavičius <giedrius@blokas.io>  Tue, 13 May 2025 17:44:22 +0300
+
 pisound-micro-mapper (1.0.0-1) UNRELEASED; urgency=low
 
   * Initial release.

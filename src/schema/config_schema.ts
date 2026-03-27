@@ -24,6 +24,13 @@ export interface schema_base {
 
 export interface config_schema_v1 extends schema_base {
 	version: 1;
+	/**
+	 * 0 disables logging, 1 logs errors, 2 logs info, 3 logs debug messages.
+	 *
+	 * @minimum 0
+	 * @maximum 3
+	 */
+	log_level?: number;
 	controls: object;
 	mappings?: Array<mapping_v1>;
 }

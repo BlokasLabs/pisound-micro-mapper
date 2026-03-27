@@ -1,6 +1,7 @@
 {
 	"$schema": "https://blokas.io/json/pisound-micro-schema.json",
 	"version": 1,
+	"log_level": 2,
 	"controls": {
 		"pisound-micro": {
 			"ctrl": {

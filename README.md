@@ -36,6 +36,7 @@ Here's a minimal working configuration that maps a rotary encoder to the Digital
 {
     "$schema": "https://blokas.io/json/pisound-micro-schema.json",
     "version": 1,
+    "log_level": 2,
     "controls": {
         "pisound-micro": {
             "volume_encoder": {
@@ -54,6 +55,8 @@ Here's a minimal working configuration that maps a rotary encoder to the Digital
     ]
 }
 ```
+
+`log_level` is optional. Supported values are `0` for disabled logging, `1` for errors only, `2` for info logs, and `3` for debug logs. If omitted, the mapper defaults to info logging.
 
 ## Control Types
 
@@ -103,9 +106,10 @@ Where direction can be:
 ## Command Line Options
 
 ```bash
-pisound-micro-mapper [--config <config.json>]
+pisound-micro-mapper [--config <config.json>] [--log-level <0-3>]
 
 --config <config.json>      Load the config from the specified file. Default: /etc/pisound-micro-mapper.json
+--log-level <0-3>           Override log level. 0=off, 1=errors, 2=info, 3=debug
 --help                      Print help
 --version                   Print version
 ```

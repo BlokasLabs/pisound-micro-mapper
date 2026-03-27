@@ -17,6 +17,7 @@
 
 #include <cassert>
 #include <cstdio>
+#include <cstdlib>
 #include <poll.h>
 #include <signal.h>
 #include <unistd.h>
@@ -79,6 +80,16 @@ static int mainloop(ControlManager &mgr)
 	return 0;
 }
 
+static bool parseLogLevelArg(const char *arg, Logger::Level &level)
+{
+	char *end = NULL;
+	long value = strtol(arg, &end, 10);
+	if (!arg || *arg == '\0' || !end || *end != '\0')
+		return false;
+
+	return Logger::tryParseLevel((int)value, level);
+}
+
 static int loadConfig(ControlManager &mgr, const char *file)
 {
 	std::ifstream stream;
@@ -126,9 +137,10 @@ static void printUsage()
 	printf(
 R"(pisound-micro-mapper usage:
 
-	pisound-micro-mapper [--config <config.json>]
+	pisound-micro-mapper [--config <config.json>] [--log-level <0-3>]
 
 	--config <config.json>      Load the config from the specified file. Default: /etc/pisound-micro-mapper.json
+	--log-level <0-3>           Override log level. 0=off, 1=errors, 2=info, 3=debug
 	--help                      Print this help
 	--version                   Print version
 
@@ -141,6 +153,8 @@ R"(pisound-micro-mapper usage:
 int main(int argc, char **argv)
 {
 	const char *config_file = "/etc/pisound-micro-mapper.json";
+	Logger::Level cli_log_level = Logger::LEVEL_INFO;
+	bool has_cli_log_level = false;
 
 	for (int i = 1; i < argc; ++i)
 	{
@@ -153,6 +167,17 @@ int main(int argc, char **argv)
 			}
 
 			config_file = argv[i + 1];
+			++i;
+		}
+		else if (strcmp(argv[i], "--log-level") == 0)
+		{
+			if (i + 1 >= argc || !parseLogLevelArg(argv[i + 1], cli_log_level))
+			{
+				printUsage();
+				return EXIT_FAILURE;
+			}
+
+			has_cli_log_level = true;
 			++i;
 		}
 		else if (strcmp(argv[i], "--help") == 0)
@@ -174,7 +199,7 @@ int main(int argc, char **argv)
 
 	static StdioLogger stdioLogger;
 	Logger::registerLogger(stdioLogger);
-	Logger::setEnabled(true);
+	Logger::setLevel(has_cli_log_level ? cli_log_level : Logger::LEVEL_INFO);
 
 	struct sigaction sa;
 	sigemptyset(&sa.sa_mask);
@@ -196,6 +221,9 @@ int main(int argc, char **argv)
 		LOG_ERROR("Loading config failed with error %d! (%s)", err, strerror(-err));
 		return EXIT_FAILURE;
 	}
+
+	if (has_cli_log_level)
+		Logger::setLevel(cli_log_level);
 
 	LOG_INFO("pid: %d", getpid());
 

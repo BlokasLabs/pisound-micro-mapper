@@ -45,6 +45,19 @@ struct mapping_info_t
 	ControlManager::map_options_t opts;
 };
 
+static Logger::Level parseLogLevel(const rapidjson::Value &config)
+{
+	auto item = config.FindMember("log_level");
+	if (item == config.MemberEnd())
+		return Logger::LEVEL_INFO;
+
+	Logger::Level level;
+	if (Logger::tryParseLevel(item->value.GetInt(), level))
+		return level;
+
+	return Logger::LEVEL_INFO;
+}
+
 ConfigLoader::ConfigLoader()
 {
 }
@@ -166,6 +179,8 @@ int ConfigLoader::processJson(ControlManager &mgr, rapidjson::Document &config)
 	auto item = config.FindMember("version");
 	if (item != config.MemberEnd() && item->value.GetInt() != 1)
 		return -EPROTO;
+
+	Logger::setLevel(parseLogLevel(config));
 
 	item = config.FindMember("controls");
 	for (auto ctrl = item->value.MemberBegin(); ctrl != item->value.MemberEnd(); ++ctrl)

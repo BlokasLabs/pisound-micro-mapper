@@ -22,9 +22,9 @@
 #include <cstdarg>
 
 #ifndef NO_LOGGING
-#	define LOG_ERROR(fmt, ...) do { if (Logger::isEnabled()) Logger::error(fmt "\n", ## __VA_ARGS__); } while (0)
-#	define LOG_INFO( fmt, ...) do { if (Logger::isEnabled()) Logger::info (fmt "\n", ## __VA_ARGS__); } while (0)
-#	define LOG_DEBUG(fmt, ...) do { if (Logger::isEnabled()) Logger::debug(fmt "\n", ## __VA_ARGS__); } while (0)
+#	define LOG_ERROR(fmt, ...) do { if (Logger::canLog(Logger::LEVEL_ERROR)) Logger::error(fmt "\n", ## __VA_ARGS__); } while (0)
+#	define LOG_INFO( fmt, ...) do { if (Logger::canLog(Logger::LEVEL_INFO)) Logger::info (fmt "\n", ## __VA_ARGS__); } while (0)
+#	define LOG_DEBUG(fmt, ...) do { if (Logger::canLog(Logger::LEVEL_DEBUG)) Logger::debug(fmt "\n", ## __VA_ARGS__); } while (0)
 #else
 #	define LOG_ERROR(fmt, ...) do {} while(0)
 #	define LOG_INFO( fmt, ...) do {} while(0)
@@ -38,14 +38,19 @@ class Logger
 public:
 	enum Level
 	{
+		LEVEL_NONE,
 		LEVEL_ERROR,
 		LEVEL_INFO,
 		LEVEL_DEBUG
 	};
 
 	static bool isEnabled();
+	static bool canLog(Level lvl);
+	static Level getLevel();
+	static bool tryParseLevel(int value, Level &lvl);
 
 	static void setEnabled(bool on);
+	static void setLevel(Level lvl);
 
 	static void registerLogger(ILogger &logger);
 

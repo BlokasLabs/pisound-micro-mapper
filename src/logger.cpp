@@ -19,20 +19,57 @@
 
 #include <cstdio>
 #include <cstdarg>
+#include <algorithm>
 
 #include <vector>
 
 static std::vector<ILogger*> g_loggers;
-static bool g_enabled = false;
+static Logger::Level g_level = Logger::LEVEL_NONE;
 
 bool Logger::isEnabled()
 {
-	return g_enabled;
+	return g_level != LEVEL_NONE;
+}
+
+bool Logger::canLog(Level lvl)
+{
+	return lvl != LEVEL_NONE && g_level >= lvl;
+}
+
+Logger::Level Logger::getLevel()
+{
+	return g_level;
+}
+
+bool Logger::tryParseLevel(int value, Level &lvl)
+{
+	switch (value)
+	{
+	case 0:
+		lvl = LEVEL_NONE;
+		return true;
+	case 1:
+		lvl = LEVEL_ERROR;
+		return true;
+	case 2:
+		lvl = LEVEL_INFO;
+		return true;
+	case 3:
+		lvl = LEVEL_DEBUG;
+		return true;
+	default:
+		return false;
+	}
 }
 
 void Logger::setEnabled(bool on)
 {
-	g_enabled = on;
+	g_level = on ? LEVEL_DEBUG : LEVEL_NONE;
+}
+
+void Logger::setLevel(Level lvl)
+{
+	g_level = std::max(LEVEL_NONE, std::min(lvl, LEVEL_DEBUG));
 }
 
 void Logger::registerLogger(ILogger &logger)
@@ -42,8 +79,16 @@ void Logger::registerLogger(ILogger &logger)
 
 void Logger::logv(Level lvl, const char *format, va_list ap)
 {
+	if (!canLog(lvl))
+		return;
+
 	for (auto l : g_loggers)
-		l->log(lvl, format, ap);
+	{
+		va_list copy;
+		va_copy(copy, ap);
+		l->log(lvl, format, copy);
+		va_end(copy);
+	}
 }
 
 StdioLogger::StdioLogger(FILE *error, FILE *info, FILE *debug)

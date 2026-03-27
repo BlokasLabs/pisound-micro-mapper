@@ -1,3 +1,11 @@
+pisound-micro-mapper (1.0.1-1) UNRELEASED; urgency=low
+
+  * Fix for chan_a and chan_b loading, fix for event masking when using bidirectional mappping.
+  * Log Level specification.
+  * Logging text improvements.
+
+ -- Giedrius Trainavičius <giedrius@blokas.io>  Fri, 27 Mar 2026 17:07:52 +0200
+
 pisound-micro-mapper (1.0.0-3) UNRELEASED; urgency=low
 
   * Trixie edition rebuild.

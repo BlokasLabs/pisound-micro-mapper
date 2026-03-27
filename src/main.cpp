@@ -130,7 +130,7 @@ static int loadConfig(ControlManager &mgr, const char *file)
 
 static void printVersion()
 {
-	printf("pisound-micro-mapper version 1.0.0 © Blokas https://blokas.io/\n");
+	printf("pisound-micro-mapper version 1.0.1 © Blokas https://blokas.io/\n");
 }
 
 static void printUsage()

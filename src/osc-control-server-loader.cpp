@@ -141,6 +141,7 @@ int OscControlServerLoader::processJson(ControlManager &mgr, IControlRegister &r
 			LOG_ERROR(R"(Failed to init OscControlServer for "%s"! (%d))", srvObj->name.GetString(), err);
 			return err;
 		}
+		LOG_INFO(R"(Initialized OSC control server "%s")", srvObj->name.GetString());
 
 		auto nfy = srvObj->value.FindMember("notify");
 		if (nfy != srvObj->value.MemberEnd())
@@ -148,12 +149,14 @@ int OscControlServerLoader::processJson(ControlManager &mgr, IControlRegister &r
 			if (nfy->value.IsString())
 			{
 				srv->addNotify(nfy->value.GetString());
+				LOG_INFO(R"(OSC server "%s" will notify "%s")", srvObj->name.GetString(), nfy->value.GetString());
 			}
 			else if (nfy->value.IsArray())
 			{
 				for (auto nfyAddr = nfy->value.Begin(); nfyAddr != nfy->value.End(); ++nfyAddr)
 				{
 					srv->addNotify(nfyAddr->GetString());
+					LOG_INFO(R"(OSC server "%s" will notify "%s")", srvObj->name.GetString(), nfyAddr->GetString());
 				}
 			}
 			else
@@ -178,6 +181,7 @@ int OscControlServerLoader::processJson(ControlManager &mgr, IControlRegister &r
 			else c = srv->registerIntControl(param->name.GetString(), info.path.c_str(), info.low.i, info.high.i);
 
 			reg.registerControl(param->name.GetString(), *c);
+			LOG_INFO(R"(Registered OSC control "%s" at path "%s" on "%s")", param->name.GetString(), info.path.c_str(), srvObj->name.GetString());
 		}
 
 		mgr.addControlServer(srv);

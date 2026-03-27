@@ -236,6 +236,7 @@ int MidiControlServer::init(const char *name)
 	}
 
 	m_port = err;
+	LOG_INFO("Created virtual MIDI port '%s'", name);
 
 	return 0;
 

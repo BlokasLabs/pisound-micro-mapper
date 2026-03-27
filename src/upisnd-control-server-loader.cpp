@@ -152,7 +152,7 @@ int PisoundMicroControlServerLoader::sanitizeJson(rapidjson::Value &object, rapi
 			}
 			if (!type->value.IsString() || str_to_element_type(type->value.GetString()) == UNKNOWN)
 			{
-				fprintf(stderr, "Unknown control type '%s', ignoring control '%s'...\n", type->value.GetString(), ctrl->name.GetString());
+				LOG_ERROR("Unknown control type '%s', ignoring control '%s'", type->value.IsString() ? type->value.GetString() : "<invalid>", ctrl->name.GetString());
 				to_remove.push_back(ctrl->name.GetString());
 			}
 			else
@@ -167,7 +167,7 @@ int PisoundMicroControlServerLoader::sanitizeJson(rapidjson::Value &object, rapi
 							activity->value.SetString(to_lower(activity->value.GetString()).c_str(), allocator);
 							if (upisnd_str_to_activity(activity->value.GetString()) == UPISND_ACTIVITY_INVALID)
 							{
-								fprintf(stderr, "Unknown activity '%s', ignoring control '%s'...\n", activity->value.GetString(), ctrl->name.GetString());
+								LOG_ERROR("Unknown activity '%s', ignoring control '%s'", activity->value.GetString(), ctrl->name.GetString());
 								to_remove.push_back(ctrl->name.GetString());
 							}
 						}
@@ -313,7 +313,7 @@ int PisoundMicroControlServerLoader::processJson(ControlManager &mgr, IControlRe
 			}
 			break;
 		default:
-			LOG_INFO("Unknown control type '%s', skipping...", ctrl->value["type"].GetString());
+			LOG_ERROR("Unknown control type '%s', skipping '%s'", ctrl->value["type"].GetString(), ctrl->name.GetString());
 			continue;
 		}
 
@@ -327,6 +327,7 @@ int PisoundMicroControlServerLoader::processJson(ControlManager &mgr, IControlRe
 			}
 
 			reg.registerControl(ctrl->name.GetString(), *c);
+			LOG_INFO("Registered pisound-micro control '%s'", ctrl->name.GetString());
 		}
 	}
 

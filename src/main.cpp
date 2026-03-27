@@ -93,6 +93,7 @@ static bool parseLogLevelArg(const char *arg, Logger::Level &level)
 static int loadConfig(ControlManager &mgr, const char *file)
 {
 	std::ifstream stream;
+	LOG_INFO(R"(Loading config from "%s")", file);
 
 	stream.open(file, std::ifstream::in);
 
@@ -225,7 +226,7 @@ int main(int argc, char **argv)
 	if (has_cli_log_level)
 		Logger::setLevel(cli_log_level);
 
-	LOG_INFO("pid: %d", getpid());
+	LOG_INFO("Starting pisound-micro-mapper with log level %d", (int)Logger::getLevel());
 
 	err = mainloop(mgr);
 	if (err < 0)

@@ -279,5 +279,5 @@ IControl::value_t AlsaControlServer::Control::getValue(int ch) const
 	if (ch < 0 || ch >= m_info.m_channelCount)
 		ch = 0;
 
-	return { .i = snd_ctl_elem_value_get_integer(v, ch) };
+	return { .i = (int32_t)snd_ctl_elem_value_get_integer(v, ch) };
 }

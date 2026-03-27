@@ -209,7 +209,7 @@ int OscControlServer::init(const char *name, const char *addr)
 	}
 	else
 	{
-		Logger::error("OSC server '%s' initialized for notifications only.\n");
+		Logger::info("OSC server '%s' initialized for notifications only.\n", name);
 	}
 
 	return 0;

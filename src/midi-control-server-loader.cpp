@@ -135,6 +135,7 @@ int MidiControlServerLoader::processJson(ControlManager &mgr, IControlRegister &
 			LOG_ERROR(R"(Failed to init MidiControlServer for "%s"! (%d))", name, err);
 			return err;
 		}
+		LOG_INFO(R"(Initialized MIDI control server "%s")", name);
 
 		auto controls = port->value.FindMember("controls");
 		if (controls == port->value.MemberEnd() || !controls->value.IsObject())
@@ -158,6 +159,7 @@ int MidiControlServerLoader::processJson(ControlManager &mgr, IControlRegister &
 				return -ENOENT;
 			}
 			reg.registerControl(ctrl->name.GetString(), *ctl);
+			LOG_INFO(R"(Registered MIDI control "%s" on "%s")", ctrl->name.GetString(), name);
 		}
 
 		mgr.addControlServer(midi);

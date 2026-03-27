@@ -84,6 +84,7 @@ int AlsaControlServerLoader::processJson(ControlManager &mgr, IControlRegister &
 			LOG_ERROR(R"(Failed to init AlsaControlServer for "%s"! (%d))", name, err);
 			return err;
 		}
+		LOG_INFO(R"(Initialized ALSA control server "%s")", name);
 
 		for (auto ctrl = card->value.Begin(); ctrl != card->value.End(); ++ctrl)
 		{
@@ -100,6 +101,7 @@ int AlsaControlServerLoader::processJson(ControlManager &mgr, IControlRegister &
 				return -ENOENT;
 			}
 			reg.registerControl(ctrlInfo.alias, *ctl);
+			LOG_INFO(R"(Registered ALSA control "%s" as "%s" on "%s")", ctrlInfo.name.c_str(), ctrlInfo.alias.c_str(), name);
 		}
 
 		mgr.addControlServer(alsa);

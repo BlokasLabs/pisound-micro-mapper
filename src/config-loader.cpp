@@ -181,6 +181,7 @@ int ConfigLoader::processJson(ControlManager &mgr, rapidjson::Document &config)
 		return -EPROTO;
 
 	Logger::setLevel(parseLogLevel(config));
+	LOG_INFO("Configured log level %d from config", (int)Logger::getLevel());
 
 	item = config.FindMember("controls");
 	for (auto ctrl = item->value.MemberBegin(); ctrl != item->value.MemberEnd(); ++ctrl)
@@ -214,6 +215,8 @@ int ConfigLoader::processJson(ControlManager &mgr, rapidjson::Document &config)
 			LOG_ERROR(R"(Processing "%s" resulted in error %d!)", srv, err);
 			goto error;
 		}
+
+		LOG_INFO(R"(Configured controls for "%s")", srv);
 	}
 
 	item = config.FindMember("mappings");
@@ -246,6 +249,8 @@ int ConfigLoader::processJson(ControlManager &mgr, rapidjson::Document &config)
 			std::swap(info.opts.m_src_ch, info.opts.m_dst_ch);
 			mgr.map(*c[1], *c[0], info.opts);
 		}
+
+		LOG_INFO(R"(Configured mapping %d: "%s" %s "%s")", controlIdx, info.a.c_str(), (info.dir == A_TO_B ? "->" : info.dir == B_TO_A ? "<-" : "<->"), info.b.c_str());
 
 		++controlIdx;
 	}

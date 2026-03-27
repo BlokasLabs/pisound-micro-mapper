@@ -189,7 +189,7 @@ int ControlManager::fillFds(struct pollfd *fds, size_t n) const
 
 int ControlManager::handleFdEvents(struct pollfd *fds, size_t nfds, size_t nevents)
 {
-	size_t total;
+	size_t total = 0;
 	for (auto &itr : m_ctrlServers)
 	{
 		int n = itr.m_server->handleFdEvents(fds, itr.m_numFds, nevents);
@@ -240,7 +240,7 @@ void ControlManager::onControlChange(IControl *control, int ch)
 		IControl::value_t dst_low = dst->getLow();
 		IControl::value_t dst_high = dst->getHigh();
 
-		bool masked = isControlChangeEventMasked(control, src_value, mapping.m_src_ch);
+		bool masked = isControlChangeEventMasked(control, mapping.m_src_ch);
 
 		if (masked)
 		{
@@ -250,7 +250,7 @@ void ControlManager::onControlChange(IControl *control, int ch)
 
 		IControl::value_t dst_value = calc(control->getType(), dst->getType(), src_value, src_low, src_high, dst_low, dst_high);
 		int res = dst->setValue(dst_value, mapping.m_dst_ch);
-		maskControlChangeEvent(ts, dst, dst_value, mapping.m_dst_ch);
+		maskControlChangeEvent(ts, dst, mapping.m_dst_ch);
 		LOG_DEBUG("v=%s '%s' (%s, %s, %s, %s, %s) -> %d",
 			to_std_string(dst_value, dst->getType()).c_str(),
 			dst->getName(),
@@ -262,12 +262,12 @@ void ControlManager::onControlChange(IControl *control, int ch)
 			res);
 	}
 
-	unmaskControlChangeEvent(control, control->getValue(ch), ch);
+	unmaskControlChangeEvent(control, ch);
 }
 
-void ControlManager::maskControlChangeEvent(milliseconds_t ts, IControl *control, IControl::value_t value, int ch)
+void ControlManager::maskControlChangeEvent(milliseconds_t ts, IControl *control, int ch)
 {
-	m_maskedControlChangeEvents.push_back(masked_control_change_event_t { ts, control, value, ch });
+	m_maskedControlChangeEvents.push_back(masked_control_change_event_t { ts, control, ch });
 }
 
 class ControlManager::MaskedControlChangeEventPredicate
@@ -280,22 +280,24 @@ public:
 
 	inline bool operator()(const ControlManager::masked_control_change_event_t &e) const
 	{
-		return m_e.m_control == e.m_control && memcmp(&m_e.m_value, &e.m_value, sizeof(m_e.m_value)) == 0 && m_e.m_ch == e.m_ch;
+		return m_e.m_control == e.m_control && m_e.m_ch == e.m_ch;
 	}
 
 private:
 	const ControlManager::masked_control_change_event_t &m_e;
 };
 
-bool ControlManager::isControlChangeEventMasked(IControl *control, IControl::value_t value, int ch) const
+bool ControlManager::isControlChangeEventMasked(IControl *control, int ch) const
 {
-	const MaskedControlChangeEventPredicate pred(masked_control_change_event_t { 0, control, value, ch });
+	const masked_control_change_event_t ccev({ 0, control, ch });
+	const MaskedControlChangeEventPredicate pred(ccev);
 	return std::find_if(m_maskedControlChangeEvents.begin(), m_maskedControlChangeEvents.end(), pred) != m_maskedControlChangeEvents.end();
 }
 
-void ControlManager::unmaskControlChangeEvent(IControl *control, IControl::value_t value, int ch)
+void ControlManager::unmaskControlChangeEvent(IControl *control, int ch)
 {
-	const MaskedControlChangeEventPredicate pred(masked_control_change_event_t { 0, control, value, ch });
+	const masked_control_change_event_t ccev({ 0, control, ch });
+	const MaskedControlChangeEventPredicate pred(ccev);
 	auto item = std::find_if(m_maskedControlChangeEvents.begin(), m_maskedControlChangeEvents.end(), pred);
 	if (item != m_maskedControlChangeEvents.end())
 	{

@@ -93,12 +93,12 @@ static MappingDir parseDir(const std::string &s)
 static int parseMappingOptions(ControlManager::map_options_t &opts, rapidjson::Value::ConstObject o)
 {
 	opts = ControlManager::defaultMapOptions();
-	auto ch = o.FindMember("src_ch");
+	auto ch = o.FindMember("chan_a");
 	if (ch != o.MemberEnd())
 	{
 		opts.m_src_ch = ch->value.GetInt();
 	}
-	ch = o.FindMember("dst_ch");
+	ch = o.FindMember("chan_b");
 	if (ch != o.MemberEnd())
 	{
 		opts.m_dst_ch = ch->value.GetInt();

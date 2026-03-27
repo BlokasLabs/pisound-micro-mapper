@@ -53,9 +53,9 @@ private:
 	typedef uint32_t milliseconds_t;
 	static milliseconds_t now();
 
-	void maskControlChangeEvent(milliseconds_t ts, IControl *control, IControl::value_t value, int ch);
-	bool isControlChangeEventMasked(IControl *control, IControl::value_t value, int ch) const;
-	void unmaskControlChangeEvent(IControl *control, IControl::value_t value, int ch);
+	void maskControlChangeEvent(milliseconds_t ts, IControl *control, int ch);
+	bool isControlChangeEventMasked(IControl *control, int ch) const;
+	void unmaskControlChangeEvent(IControl *control, int ch);
 
 	virtual void onControlChange(IControl *control, int ch) override;
 
@@ -84,7 +84,6 @@ private:
 	{
 		milliseconds_t    m_ts;
 		IControl          *m_control;
-		IControl::value_t m_value;
 		int               m_ch;
 
 		//inline bool operator==(const masked_control_change_event_t &rhs) const

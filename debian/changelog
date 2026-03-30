@@ -1,3 +1,9 @@
+pisound-micro-mapper (1.0.1-1~bookworm) UNRELEASED; urgency=low
+
+  * Backport for bookworm.
+
+ -- Giedrius Trainavičius <giedrius@blokas.io>  Mon, 30 Mar 2026 12:18:41 +0300
+
 pisound-micro-mapper (1.0.1-1) UNRELEASED; urgency=low
 
   * Fix for chan_a and chan_b loading, fix for event masking when using bidirectional mappping.
